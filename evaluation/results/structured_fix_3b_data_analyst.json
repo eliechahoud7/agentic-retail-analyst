@@ -1,0 +1,121 @@
+{
+ "models": {
+  "supervisor": "qwen2.5:1.5b",
+  "data_analyst": "qwen2.5:3b",
+  "analytics": "qwen2.5:1.5b"
+ },
+ "results": [
+  {
+   "q": 1,
+   "question": "What are the top 5 product categories by sales revenue?",
+   "seconds": 87.3,
+   "sql_executed": 1,
+   "sql_ok": 0,
+   "sql_failed": 1,
+   "duplicates_blocked": 4,
+   "routes": [
+    "data_analyst",
+    "data_analyst",
+    "report"
+   ],
+   "analyses": [],
+   "datasets": {},
+   "checks": [
+    "Data Analyst kept proposing a request that had already failed; stopped retrying."
+   ],
+   "final_answer": "**Answer:** I could not retrieve data from the database to answer this question, so no answer is given rather than a guess.\n\n**Evidence:**\n\n**Caveats:**\n- Data Analyst kept proposing a request that had already failed; stopped retrying.",
+   "ollama_ps": "NAME            ID              SIZE      PROCESSOR          CONTEXT    RUNNER      UNTIL              \nqwen2.5:3b      357c53fb659c    2.2 GB    62%/38% CPU/GPU    4096       llamacpp    4 minutes from now    \nqwen2.5:1.5b    65ec06548149    1.1 GB    24%/76% CPU/GPU    4096       llamacpp    4 minutes from now",
+   "gpu_mem": "1660 MiB, 2048 MiB"
+  },
+  {
+   "q": 2,
+   "question": "How did monthly sales revenue grow during 2018?",
+   "seconds": 106.7,
+   "sql_executed": 2,
+   "sql_ok": 0,
+   "sql_failed": 2,
+   "duplicates_blocked": 4,
+   "routes": [
+    "data_analyst",
+    "data_analyst",
+    "report"
+   ],
+   "analyses": [],
+   "datasets": {},
+   "checks": [
+    "Data Analyst kept proposing a request that had already failed; stopped retrying."
+   ],
+   "final_answer": "**Answer:** I could not retrieve data from the database to answer this question, so no answer is given rather than a guess.\n\n**Evidence:**\n\n**Caveats:**\n- Data Analyst kept proposing a request that had already failed; stopped retrying.",
+   "ollama_ps": "NAME            ID              SIZE      PROCESSOR          CONTEXT    RUNNER      UNTIL              \nqwen2.5:3b      357c53fb659c    2.2 GB    62%/38% CPU/GPU    4096       llamacpp    4 minutes from now    \nqwen2.5:1.5b    65ec06548149    1.1 GB    24%/76% CPU/GPU    4096       llamacpp    4 minutes from now",
+   "gpu_mem": "1670 MiB, 2048 MiB"
+  },
+  {
+   "q": 3,
+   "question": "Which customer states have the highest late delivery rate?",
+   "seconds": 82.8,
+   "sql_executed": 2,
+   "sql_ok": 0,
+   "sql_failed": 2,
+   "duplicates_blocked": 5,
+   "routes": [
+    "data_analyst",
+    "data_analyst",
+    "report"
+   ],
+   "analyses": [],
+   "datasets": {},
+   "checks": [
+    "Data Analyst kept proposing a request that had already failed; stopped retrying."
+   ],
+   "final_answer": "**Answer:** I could not retrieve data from the database to answer this question, so no answer is given rather than a guess.\n\n**Evidence:**\n\n**Caveats:**\n- Data Analyst kept proposing a request that had already failed; stopped retrying.",
+   "ollama_ps": "NAME            ID              SIZE      PROCESSOR          CONTEXT    RUNNER      UNTIL              \nqwen2.5:3b      357c53fb659c    2.2 GB    62%/38% CPU/GPU    4096       llamacpp    4 minutes from now    \nqwen2.5:1.5b    65ec06548149    1.1 GB    24%/76% CPU/GPU    4096       llamacpp    4 minutes from now",
+   "gpu_mem": "1670 MiB, 2048 MiB"
+  },
+  {
+   "q": 4,
+   "question": "What share of payment value comes from each payment type?",
+   "seconds": 135.9,
+   "sql_executed": 6,
+   "sql_ok": 0,
+   "sql_failed": 6,
+   "duplicates_blocked": 2,
+   "routes": [
+    "data_analyst",
+    "data_analyst",
+    "report"
+   ],
+   "analyses": [],
+   "datasets": {},
+   "checks": [
+    "Data Analyst failed after 3 attempts: Fetch payment type distribution by total payment value.",
+    "Data Analyst failed after 3 attempts: Fetch payment type distribution for each payment method, grouped by payment method, to calculate the share of payment value."
+   ],
+   "final_answer": "**Answer:** I could not retrieve data from the database to answer this question, so no answer is given rather than a guess.\n\n**Evidence:**\n\n**Caveats:**\n- Data Analyst failed after 3 attempts: Fetch payment type distribution by total payment value.\n- Data Analyst failed after 3 attempts: Fetch payment type distribution for each payment method, grouped by payment method, to calculate the share of payment value.",
+   "ollama_ps": "NAME            ID              SIZE      PROCESSOR          CONTEXT    RUNNER      UNTIL              \nqwen2.5:3b      357c53fb659c    2.2 GB    62%/38% CPU/GPU    4096       llamacpp    4 minutes from now    \nqwen2.5:1.5b    65ec06548149    1.1 GB    24%/76% CPU/GPU    4096       llamacpp    4 minutes from now",
+   "gpu_mem": "1670 MiB, 2048 MiB"
+  },
+  {
+   "q": 5,
+   "question": "Is there a relationship between delivery delays and review scores?",
+   "seconds": 136.8,
+   "sql_executed": 4,
+   "sql_ok": 0,
+   "sql_failed": 4,
+   "duplicates_blocked": 2,
+   "routes": [
+    "data_analyst",
+    "data_analyst",
+    "report"
+   ],
+   "analyses": [],
+   "datasets": {},
+   "checks": [
+    "Data Analyst failed after 3 attempts: Fetch delivery delays and review scores for the past year, grouped by delivery delay, to calculate the correlation between the two metrics.",
+    "Data Analyst kept proposing a request that had already failed; stopped retrying."
+   ],
+   "final_answer": "**Answer:** I could not retrieve data from the database to answer this question, so no answer is given rather than a guess.\n\n**Evidence:**\n\n**Caveats:**\n- Data Analyst failed after 3 attempts: Fetch delivery delays and review scores for the past year, grouped by delivery delay, to calculate the correlation between the two metrics.\n- Data Analyst kept proposing a request that had already failed; stopped retrying.",
+   "ollama_ps": "NAME            ID              SIZE      PROCESSOR          CONTEXT    RUNNER      UNTIL              \nqwen2.5:3b      357c53fb659c    2.2 GB    62%/38% CPU/GPU    4096       llamacpp    4 minutes from now    \nqwen2.5:1.5b    65ec06548149    1.1 GB    24%/76% CPU/GPU    4096       llamacpp    4 minutes from now",
+   "gpu_mem": "1670 MiB, 2048 MiB"
+  }
+ ]
+}

@@ -1,0 +1,20 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.streamlit/secrets.toml
+data/*
+!data/.gitkeep
+
+# Local secrets and environment files (the template is published)
+.env.*
+!.env.example
+
+# Editors, OS, logs
+.vscode/
+.idea/
+Thumbs.db
+*.log
+
+# Local one-off audit of another database account (setup phase only; not needed to run the project)
+sql/01_inspect_powerbi_reader.sql

@@ -1,0 +1,829 @@
+{
+ "models": {
+  "supervisor": "qwen2.5:1.5b",
+  "data_analyst": "qwen2.5:1.5b",
+  "analytics": "qwen2.5:1.5b"
+ },
+ "summary": {
+  "correct": 9,
+  "wrong": 4,
+  "safe_failure": 5,
+  "correct_refusal": 13,
+  "wrongly_answered": 1
+ },
+ "by_kind": {
+  "in_scope": {
+   "correct": 9
+  },
+  "gap": {
+   "correct_refusal": 8,
+   "wrongly_answered": 1
+  },
+  "unusual_wording": {
+   "safe_failure": 5
+  },
+  "trap": {
+   "wrong": 4
+  },
+  "impossible": {
+   "correct_refusal": 5
+  }
+ },
+ "ollama_ps": "NAME            ID              SIZE      PROCESSOR          CONTEXT    RUNNER      UNTIL              \nqwen2.5:1.5b    65ec06548149    1.1 GB    24%/76% CPU/GPU    4096       llamacpp    4 minutes from now",
+ "gpu": "844 MiB, 2048 MiB",
+ "results": [
+  {
+   "n": 1,
+   "question": "Which month in 2017 had the highest sales?",
+   "expect": "answer",
+   "kind": "in_scope",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 11.2,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "revenue",
+     "group_by": "month"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Top 10 Months by Revenue in 2017\n\nNovember 2017 has the highest revenue (R$ 1,010,271), followed by December 2017 (R$ 743,914) and October 2017 (R$ 664,219).\n\n| Rank | Month | Revenue |\n|---:|---|---:|\n| 1 | 2017-11 | R$ 1,010,271 |\n| 2 | 2017-12 | R$ 743,914 |\n| 3 | 2017-10 | R$ 664,219 |\n| 4 | 2017-09 | R$ 624,402 |\n| 5 | 2017-08 | R$ 573,972 |\n| 6 | 2017-05 | R$ 506,071 |\n| 7 | 2017-07 | R$ 498,031 |\n| 8 | 2017-06 | R$ 433,039 |\n| 9 | 2017-03 | R$ 374,344 |\n| 10 | 2017-04 | R$ 359,927 |"
+  },
+  {
+   "n": 2,
+   "question": "What was our total turnover in 2017?",
+   "expect": "answer",
+   "kind": "in_scope",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 0.8,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "revenue",
+     "group_by": null
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Revenue in 2017\n\nThe revenue in 2017 was R$ 6,155,807.\n\n| Revenue |\n|---:|\n| R$ 6,155,807 |"
+  },
+  {
+   "n": 3,
+   "question": "How much did we sell in the state of Sao Paulo?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 5.7,
+   "status": "no_reliable_answer",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "revenue",
+     "group_by": "seller_state"
+    }
+   ],
+   "issues": [
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    },
+    {
+     "kind": "info",
+     "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+    }
+   ],
+   "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month)."
+  },
+  {
+   "n": 4,
+   "question": "Which states buy the most products?",
+   "expect": "answer",
+   "kind": "unusual_wording",
+   "outcome": "safe_failure",
+   "detail": "no_reliable_answer",
+   "seconds": 3.9,
+   "status": "no_reliable_answer",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "units_sold",
+     "group_by": "customer_state"
+    },
+    {
+     "metric": "units_sold",
+     "group_by": "seller_state"
+    }
+   ],
+   "issues": [
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    },
+    {
+     "kind": "info",
+     "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+    }
+   ],
+   "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month)."
+  },
+  {
+   "n": 5,
+   "question": "What were the takings by product category?",
+   "expect": "answer",
+   "kind": "unusual_wording",
+   "outcome": "safe_failure",
+   "detail": "no_reliable_answer",
+   "seconds": 3.0,
+   "status": "no_reliable_answer",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "revenue",
+     "group_by": "category"
+    }
+   ],
+   "issues": [
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    },
+    {
+     "kind": "info",
+     "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+    }
+   ],
+   "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month)."
+  },
+  {
+   "n": 6,
+   "question": "Show me the revenue trend for 2018.",
+   "expect": "answer",
+   "kind": "in_scope",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 1.2,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "revenue",
+     "group_by": null
+    }
+   ],
+   "issues": [
+    {
+     "kind": "info",
+     "message": "Dataset d1: the data request was corrected automatically. Growth is measured month by month."
+    }
+   ],
+   "user_sees": "### Monthly Revenue Growth in 2018\n\nRevenue went from R$ 950,030 in January 2018 to R$ 854,686 in August 2018, a change of -10.0%. The largest increase was in March 2018 (+16.47%) and the largest decrease was in June 2018 (-13.19%).\n\n| Month | Revenue | Change | Growth |\n|---|---:|---:|---:|\n| 2018-01 | R$ 950,030 | \u2013 | \u2013 |\n| 2018-02 | R$ 844,179 | R$ -105,852 | -11.14% |\n| 2018-03 | R$ 983,213 | R$ 139,035 | 16.47% |\n| 2018-04 | R$ 996,648 | R$ 13,434 | 1.37% |\n| 2018-05 | R$ 996,518 | R$ -130.07 | -0.01% |\n| 2018-06 | R$ 865,124 | R$ -131,393 | -13.19% |\n| 2018-07 | R$ 895,507 | R$ 30,383 | 3.51% |\n| 2018-08 | R$ 854,686 | R$ -40,821 | -4.56% |"
+  },
+  {
+   "n": 7,
+   "question": "Which category earns the least?",
+   "expect": "answer",
+   "kind": "unusual_wording",
+   "outcome": "safe_failure",
+   "detail": "no_reliable_answer",
+   "seconds": 7.9,
+   "status": "no_reliable_answer",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "revenue",
+     "group_by": "category"
+    },
+    {
+     "metric": "revenue",
+     "group_by": null
+    }
+   ],
+   "issues": [
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    },
+    {
+     "kind": "info",
+     "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+    }
+   ],
+   "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month)."
+  },
+  {
+   "n": 8,
+   "question": "How many unique customers did we have in 2018?",
+   "expect": "answer",
+   "kind": "in_scope",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 1.7,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "customers",
+     "group_by": null
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Number of Customers in 2018\n\nThe number of customers in 2018 was 52,749.\n\n| Customers |\n|---:|\n| 52,749 |"
+  },
+  {
+   "n": 9,
+   "question": "Which states have the most customers?",
+   "expect": "answer",
+   "kind": "in_scope",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 2.3,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "customers",
+     "group_by": "customer_state"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Top 10 Customer States by Number of Customers\n\nSP has the highest number of customers (40,302), followed by RJ (12,384) and MG (11,259).\n\n| Rank | State | Customers |\n|---:|---|---:|\n| 1 | SP | 40,302 |\n| 2 | RJ | 12,384 |\n| 3 | MG | 11,259 |\n| 4 | RS | 5,277 |\n| 5 | PR | 4,882 |\n| 6 | SC | 3,534 |\n| 7 | BA | 3,277 |\n| 8 | DF | 2,075 |\n| 9 | ES | 1,964 |\n| 10 | GO | 1,952 |"
+  },
+  {
+   "n": 10,
+   "question": "What share of customers come back for a second purchase?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 6.9,
+   "status": "no_reliable_answer",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "customers",
+     "group_by": "customer_state"
+    },
+    {
+     "metric": "customers",
+     "group_by": null
+    }
+   ],
+   "issues": [
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    },
+    {
+     "kind": "info",
+     "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+    }
+   ],
+   "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month)."
+  },
+  {
+   "n": 11,
+   "question": "How many new customers did we acquire each month in 2017?",
+   "expect": "answer",
+   "kind": "trap",
+   "outcome": "wrong",
+   "detail": "'2017-01': expected 764.0, shown [765.0]",
+   "seconds": 2.8,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "customers",
+     "group_by": "month"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Number of Customers by Month in 2017\n\nNumber of customers was highest in November 2017 (7,430) and lowest in January 2017 (765).\n\n| Month | Customers |\n|---|---:|\n| 2017-01 | 765 |\n| 2017-02 | 1,755 |\n| 2017-03 | 2,642 |\n| 2017-04 | 2,372 |\n| 2017-05 | 3,625 |\n| 2017-06 | 3,180 |\n| 2017-07 | 3,947 |\n| 2017-08 | 4,246 |\n| 2017-09 | 4,212 |\n| 2017-10 | 4,561 |\n| 2017-11 | 7,430 |\n| 2017-12 | 5,603 |"
+  },
+  {
+   "n": 12,
+   "question": "How many orders were cancelled?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "wrongly_answered",
+   "detail": "answered a must-refuse question",
+   "seconds": 1.1,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "orders",
+     "group_by": null
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Number of Orders\n\nThe number of orders was 99,441.\n\n| Orders |\n|---:|\n| 99,441 |"
+  },
+  {
+   "n": 13,
+   "question": "What is the average delivery time in days?",
+   "expect": "answer",
+   "kind": "in_scope",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 1.1,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "average_delivery_days",
+     "group_by": null
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Average Delivery Time\n\nThe average delivery time was 12.56 days.\n\n| Average delivery days |\n|---:|\n| 12.56 |"
+  },
+  {
+   "n": 14,
+   "question": "Which states wait the longest for their deliveries?",
+   "expect": "answer",
+   "kind": "unusual_wording",
+   "outcome": "safe_failure",
+   "detail": "no_reliable_answer",
+   "seconds": 7.3,
+   "status": "no_reliable_answer",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "average_delivery_days",
+     "group_by": "customer_state"
+    },
+    {
+     "metric": "late_delivery_rate",
+     "group_by": "customer_state"
+    }
+   ],
+   "issues": [
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    },
+    {
+     "kind": "info",
+     "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+    }
+   ],
+   "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month)."
+  },
+  {
+   "n": 15,
+   "question": "In which month of 2018 were deliveries most often late?",
+   "expect": "answer",
+   "kind": "in_scope",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 1.1,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "late_delivery_rate",
+     "group_by": "month"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Top 8 Months by Late Delivery Rate in 2018\n\nMarch 2018 has the highest late delivery rate (18.96%), followed by February 2018 (14.13%) and May 2018 (6.56%).\n\n| Rank | Month | Late delivery rate |\n|---:|---|---:|\n| 1 | 2018-03 | 18.96% |\n| 2 | 2018-02 | 14.13% |\n| 3 | 2018-05 | 6.56% |\n| 4 | 2018-08 | 6.19% |\n| 5 | 2018-01 | 5.70% |\n| 6 | 2018-04 | 4.50% |\n| 7 | 2018-07 | 3.38% |\n| 8 | 2018-06 | 1.16% |"
+  },
+  {
+   "n": 16,
+   "question": "Do late deliveries hurt customer ratings?",
+   "expect": "answer",
+   "kind": "in_scope",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 1.0,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "average_review_score",
+     "group_by": "delivery_status"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Average Review Score by Delivery Status\n\nThe average review score is 4.29 for On-time deliveries, compared with 2.27 for Late deliveries.\n\n| Delivery | Average review score |\n|---|---:|\n| On-time deliveries | 4.29 |\n| Late deliveries | 2.27 |"
+  },
+  {
+   "n": 17,
+   "question": "How often are orders delivered after the promised date?",
+   "expect": "answer",
+   "kind": "unusual_wording",
+   "outcome": "safe_failure",
+   "detail": "no_reliable_answer",
+   "seconds": 2.9,
+   "status": "no_reliable_answer",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "late_delivery_rate",
+     "group_by": "customer_state"
+    }
+   ],
+   "issues": [
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    },
+    {
+     "kind": "info",
+     "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+    }
+   ],
+   "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month)."
+  },
+  {
+   "n": 18,
+   "question": "What is the most popular payment method?",
+   "expect": "answer",
+   "kind": "trap",
+   "outcome": "wrong",
+   "detail": "'credit_card': expected 76795.0, shown [12542084.19]",
+   "seconds": 0.8,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "payment_value",
+     "group_by": "payment_type"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Top 5 Payment Methods by Payment Value\n\nCredit Card has the highest payment value (R$ 12,542,084), followed by Boleto (R$ 2,869,361) and Voucher (R$ 379,437).\n\n| Rank | Payment type | Payment value |\n|---:|---|---:|\n| 1 | Credit Card | R$ 12,542,084 |\n| 2 | Boleto | R$ 2,869,361 |\n| 3 | Voucher | R$ 379,437 |\n| 4 | Debit Card | R$ 217,990 |\n| 5 | Not Defined | R$ 0.00 |"
+  },
+  {
+   "n": 19,
+   "question": "How much did customers pay in total with vouchers?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 2.8,
+   "status": "no_reliable_answer",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "payment_value",
+     "group_by": "payment_type"
+    }
+   ],
+   "issues": [
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    },
+    {
+     "kind": "info",
+     "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+    }
+   ],
+   "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month)."
+  },
+  {
+   "n": 20,
+   "question": "What is the average number of installments for credit card payments?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 3.1,
+   "status": "no_reliable_answer",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "average_order_value",
+     "group_by": "payment_type"
+    }
+   ],
+   "issues": [
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    },
+    {
+     "kind": "info",
+     "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+    }
+   ],
+   "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month)."
+  },
+  {
+   "n": 21,
+   "question": "What's the average customer rating?",
+   "expect": "answer",
+   "kind": "in_scope",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 2.0,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "average_review_score",
+     "group_by": "customer_state"
+    },
+    {
+     "metric": "average_review_score",
+     "group_by": null
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Average Review Score\n\nThe average review score was 4.09.\n\n| Average review score |\n|---:|\n| 4.09 |"
+  },
+  {
+   "n": 22,
+   "question": "Which month of 2017 had the worst reviews?",
+   "expect": "answer",
+   "kind": "trap",
+   "outcome": "wrong",
+   "detail": "'2017-11': expected 3.91, shown [7534.0]",
+   "seconds": 1.0,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "reviews",
+     "group_by": "month"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Top 10 Months by Number of Reviews in 2017\n\nNovember 2017 has the highest number of reviews (7,534), followed by December 2017 (5,638) and October 2017 (4,626).\n\n| Rank | Month | Reviews |\n|---:|---|---:|\n| 1 | 2017-11 | 7,534 |\n| 2 | 2017-12 | 5,638 |\n| 3 | 2017-10 | 4,626 |\n| 4 | 2017-08 | 4,341 |\n| 5 | 2017-09 | 4,277 |\n| 6 | 2017-07 | 4,032 |\n| 7 | 2017-05 | 3,703 |\n| 8 | 2017-06 | 3,250 |\n| 9 | 2017-03 | 2,676 |\n| 10 | 2017-04 | 2,394 |"
+  },
+  {
+   "n": 23,
+   "question": "How many reviews did we receive in 2018?",
+   "expect": "answer",
+   "kind": "trap",
+   "outcome": "wrong",
+   "detail": "None: expected 56164.0, shown [53854.0]",
+   "seconds": 0.8,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "reviews",
+     "group_by": null
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Number of Reviews in 2018\n\nThe number of reviews in 2018 was 53,854.\n\n| Reviews |\n|---:|\n| 53,854 |"
+  },
+  {
+   "n": 24,
+   "question": "What is our profit margin by category?",
+   "expect": "refuse",
+   "kind": "impossible",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 5.6,
+   "status": "no_reliable_answer",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "revenue",
+     "group_by": "category"
+    }
+   ],
+   "issues": [
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    },
+    {
+     "kind": "info",
+     "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+    }
+   ],
+   "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month)."
+  },
+  {
+   "n": 25,
+   "question": "Which marketing campaign drove the most sales in 2018?",
+   "expect": "refuse",
+   "kind": "impossible",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 3.1,
+   "status": "no_reliable_answer",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "revenue",
+     "group_by": "campaign"
+    }
+   ],
+   "issues": [
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    },
+    {
+     "kind": "info",
+     "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+    }
+   ],
+   "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month)."
+  },
+  {
+   "n": 26,
+   "question": "How many products do we currently have in stock?",
+   "expect": "refuse",
+   "kind": "impossible",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 3.1,
+   "status": "no_reliable_answer",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "products_in_stock",
+     "group_by": null
+    }
+   ],
+   "issues": [
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    },
+    {
+     "kind": "info",
+     "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+    }
+   ],
+   "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month)."
+  },
+  {
+   "n": 27,
+   "question": "What will sales look like next quarter?",
+   "expect": "refuse",
+   "kind": "impossible",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The data only covers past orders (2016 to 2018), so it cannot be used to forecast future values."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The data only covers past orders (2016 to 2018), so it cannot be used to forecast future values."
+  },
+  {
+   "n": 28,
+   "question": "Why did revenue drop in June 2018?",
+   "expect": "refuse",
+   "kind": "impossible",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The data shows what happened, but not why it happened, so causes cannot be determined from it."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The data shows what happened, but not why it happened, so causes cannot be determined from it."
+  },
+  {
+   "n": 29,
+   "question": "Who are our top 10 customers by spend?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 3.3,
+   "status": "no_reliable_answer",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "payment_value",
+     "group_by": "customer_state"
+    }
+   ],
+   "issues": [
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    },
+    {
+     "kind": "info",
+     "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+    }
+   ],
+   "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month)."
+  },
+  {
+   "n": 30,
+   "question": "Which sellers generate the most revenue?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 5.1,
+   "status": "no_reliable_answer",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "revenue",
+     "group_by": "seller_state"
+    },
+    {
+     "metric": "revenue",
+     "group_by": null
+    }
+   ],
+   "issues": [
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    },
+    {
+     "kind": "info",
+     "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+    }
+   ],
+   "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month)."
+  },
+  {
+   "n": 31,
+   "question": "What was the revenue in Rio de Janeiro in 2017?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 4.7,
+   "status": "no_reliable_answer",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "revenue",
+     "group_by": "seller_state"
+    }
+   ],
+   "issues": [
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    },
+    {
+     "kind": "info",
+     "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+    }
+   ],
+   "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month)."
+  },
+  {
+   "n": 32,
+   "question": "Which product sold the most units?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 9.7,
+   "status": "no_reliable_answer",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "units_sold",
+     "group_by": "category"
+    },
+    {
+     "metric": "units_sold",
+     "group_by": null
+    }
+   ],
+   "issues": [
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    },
+    {
+     "kind": "info",
+     "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+    }
+   ],
+   "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month)."
+  }
+ ]
+}

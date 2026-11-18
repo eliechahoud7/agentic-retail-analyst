@@ -1,0 +1,742 @@
+{
+ "models": {
+  "supervisor": "qwen2.5:1.5b",
+  "data_analyst": "qwen2.5:1.5b",
+  "analytics": "qwen2.5:1.5b"
+ },
+ "summary": {
+  "correct": 13,
+  "wrong": 0,
+  "safe_failure": 5,
+  "correct_refusal": 14,
+  "wrongly_answered": 0
+ },
+ "by_kind": {
+  "in_scope": {
+   "correct": 8,
+   "safe_failure": 1
+  },
+  "gap": {
+   "correct_refusal": 9
+  },
+  "unusual_wording": {
+   "correct": 5
+  },
+  "trap": {
+   "safe_failure": 4
+  },
+  "impossible": {
+   "correct_refusal": 5
+  }
+ },
+ "ollama_ps": "NAME            ID              SIZE      PROCESSOR          CONTEXT    RUNNER      UNTIL              \nqwen2.5:1.5b    65ec06548149    1.1 GB    24%/76% CPU/GPU    4096       llamacpp    4 minutes from now",
+ "gpu": "844 MiB, 2048 MiB",
+ "results": [
+  {
+   "n": 1,
+   "question": "Which month in 2017 had the highest sales?",
+   "expect": "answer",
+   "kind": "in_scope",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 3.1,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "revenue",
+     "group_by": "month"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Top 10 Months by Revenue in 2017\n\nNovember 2017 has the highest revenue (R$ 1,010,271), followed by December 2017 (R$ 743,914) and October 2017 (R$ 664,219).\n\n| Rank | Month | Revenue |\n|---:|---|---:|\n| 1 | 2017-11 | R$ 1,010,271 |\n| 2 | 2017-12 | R$ 743,914 |\n| 3 | 2017-10 | R$ 664,219 |\n| 4 | 2017-09 | R$ 624,402 |\n| 5 | 2017-08 | R$ 573,972 |\n| 6 | 2017-05 | R$ 506,071 |\n| 7 | 2017-07 | R$ 498,031 |\n| 8 | 2017-06 | R$ 433,039 |\n| 9 | 2017-03 | R$ 374,344 |\n| 10 | 2017-04 | R$ 359,927 |"
+  },
+  {
+   "n": 2,
+   "question": "What was our total turnover in 2017?",
+   "expect": "answer",
+   "kind": "in_scope",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 0.6,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "revenue",
+     "group_by": null
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Revenue in 2017\n\nThe revenue in 2017 was R$ 6,155,807.\n\n| Revenue |\n|---:|\n| R$ 6,155,807 |"
+  },
+  {
+   "n": 3,
+   "question": "How much did we sell in the state of Sao Paulo?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one state (Sao Paulo). Answers can compare all states, but not filter one."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one state (Sao Paulo). Answers can compare all states, but not filter one."
+  },
+  {
+   "n": 4,
+   "question": "Which states buy the most products?",
+   "expect": "answer",
+   "kind": "unusual_wording",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 0.8,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "units_sold",
+     "group_by": "customer_state"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Top 10 Customer States by Number of Units Sold\n\nSP has the highest number of units sold (47,449), followed by RJ (14,579) and MG (13,129).\n\n| Rank | State | Units |\n|---:|---|---:|\n| 1 | SP | 47,449 |\n| 2 | RJ | 14,579 |\n| 3 | MG | 13,129 |\n| 4 | RS | 6,235 |\n| 5 | PR | 5,740 |\n| 6 | SC | 4,176 |\n| 7 | BA | 3,799 |\n| 8 | DF | 2,406 |\n| 9 | GO | 2,333 |\n| 10 | ES | 2,256 |"
+  },
+  {
+   "n": 5,
+   "question": "What were the takings by product category?",
+   "expect": "answer",
+   "kind": "unusual_wording",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 0.7,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "revenue",
+     "group_by": "category"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Revenue by Product Category\n\nHealth & Beauty has the highest revenue (R$ 1,258,681) and Security & Services the lowest (R$ 283.29).\n\n| Category | Revenue |\n|---|---:|\n| Health & Beauty | R$ 1,258,681 |\n| Watches & Gifts | R$ 1,205,006 |\n| Bed, Bath & Table | R$ 1,036,989 |\n| Sports & Leisure | R$ 988,049 |\n| Computers & Accessories | R$ 911,954 |\n| Furniture & Decor | R$ 729,762 |\n| Cool Stuff | R$ 635,291 |\n| Housewares | R$ 632,249 |\n| Auto | R$ 592,720 |\n| Garden Tools | R$ 485,256 |\n| Toys | R$ 483,947 |\n| Baby | R$ 411,765 |\n| Perfumery | R$ 399,125 |\n| Telephony | R$ 323,668 |\n| Office Furniture | R$ 273,961 |\n| Stationery | R$ 230,943 |\n| Computers | R$ 222,963 |\n| Pet Shop | R$ 214,315 |\n| Musical Instruments | R$ 191,499 |\n| Small Appliances | R$ 190,649 |\n\n*Showing the first 20 of 74 rows.*"
+  },
+  {
+   "n": 6,
+   "question": "Show me the revenue trend for 2018.",
+   "expect": "answer",
+   "kind": "in_scope",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 0.7,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "revenue",
+     "group_by": null
+    }
+   ],
+   "issues": [
+    {
+     "kind": "info",
+     "message": "Dataset d1: the data request was corrected automatically. Growth is measured month by month."
+    }
+   ],
+   "user_sees": "### Monthly Revenue Growth in 2018\n\nRevenue went from R$ 950,030 in January 2018 to R$ 854,686 in August 2018, a change of -10.0%. The largest increase was in March 2018 (+16.47%) and the largest decrease was in June 2018 (-13.19%).\n\n| Month | Revenue | Change | Growth |\n|---|---:|---:|---:|\n| 2018-01 | R$ 950,030 | \u2013 | \u2013 |\n| 2018-02 | R$ 844,179 | R$ -105,852 | -11.14% |\n| 2018-03 | R$ 983,213 | R$ 139,035 | 16.47% |\n| 2018-04 | R$ 996,648 | R$ 13,434 | 1.37% |\n| 2018-05 | R$ 996,518 | R$ -130.07 | -0.01% |\n| 2018-06 | R$ 865,124 | R$ -131,393 | -13.19% |\n| 2018-07 | R$ 895,507 | R$ 30,383 | 3.51% |\n| 2018-08 | R$ 854,686 | R$ -40,821 | -4.56% |"
+  },
+  {
+   "n": 7,
+   "question": "Which category earns the least?",
+   "expect": "answer",
+   "kind": "unusual_wording",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 0.7,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "revenue",
+     "group_by": "category"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Bottom 10 Product Categories by Revenue\n\nSecurity & Services has the lowest revenue (R$ 283.29), followed by Fashion: Children's Clothes (R$ 569.85) and CDs, DVDs & Musicals (R$ 730.00).\n\n| Rank | Category | Revenue |\n|---:|---|---:|\n| 1 | Security & Services | R$ 283.29 |\n| 2 | Fashion: Children's Clothes | R$ 569.85 |\n| 3 | CDs, DVDs & Musicals | R$ 730.00 |\n| 4 | Home Comfort 2 | R$ 760.27 |\n| 5 | Flowers | R$ 1,110 |\n| 6 | PC Gamer | R$ 1,546 |\n| 7 | Diapers & Hygiene | R$ 1,568 |\n| 8 | Arts & Craftmanship | R$ 1,814 |\n| 9 | La Cuisine | R$ 2,055 |\n| 10 | Fashion: Sport | R$ 2,120 |"
+  },
+  {
+   "n": 8,
+   "question": "How many unique customers did we have in 2018?",
+   "expect": "answer",
+   "kind": "in_scope",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 1.1,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "customers",
+     "group_by": null
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Number of Customers in 2018\n\nThe number of customers in 2018 was 52,749.\n\n| Customers |\n|---:|\n| 52,749 |"
+  },
+  {
+   "n": 9,
+   "question": "Which states have the most customers?",
+   "expect": "answer",
+   "kind": "in_scope",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 1.9,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "customers",
+     "group_by": "customer_state"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Top 10 Customer States by Number of Customers\n\nSP has the highest number of customers (40,302), followed by RJ (12,384) and MG (11,259).\n\n| Rank | State | Customers |\n|---:|---|---:|\n| 1 | SP | 40,302 |\n| 2 | RJ | 12,384 |\n| 3 | MG | 11,259 |\n| 4 | RS | 5,277 |\n| 5 | PR | 4,882 |\n| 6 | SC | 3,534 |\n| 7 | BA | 3,277 |\n| 8 | DF | 2,075 |\n| 9 | ES | 1,964 |\n| 10 | GO | 1,952 |"
+  },
+  {
+   "n": 10,
+   "question": "What share of customers come back for a second purchase?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question depends on \"come back\", but the supported metrics do not separate new and returning customers, so an answer would be misleading."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question depends on \"come back\", but the supported metrics do not separate new and returning customers, so an answer would be misleading."
+  },
+  {
+   "n": 11,
+   "question": "How many new customers did we acquire each month in 2017?",
+   "expect": "answer",
+   "kind": "trap",
+   "outcome": "safe_failure",
+   "detail": "refused_out_of_scope",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question depends on \"new customers\", but the supported metrics do not separate new and returning customers, so an answer would be misleading."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question depends on \"new customers\", but the supported metrics do not separate new and returning customers, so an answer would be misleading."
+  },
+  {
+   "n": 12,
+   "question": "How many orders were cancelled?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about \"cancelled\" orders, but the supported metrics do not separate orders by status, so an answer would be misleading."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about \"cancelled\" orders, but the supported metrics do not separate orders by status, so an answer would be misleading."
+  },
+  {
+   "n": 13,
+   "question": "What is the average delivery time in days?",
+   "expect": "answer",
+   "kind": "in_scope",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 0.8,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "average_delivery_days",
+     "group_by": null
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Average Delivery Time\n\nThe average delivery time was 12.56 days.\n\n| Average delivery days |\n|---:|\n| 12.56 |"
+  },
+  {
+   "n": 14,
+   "question": "Which states wait the longest for their deliveries?",
+   "expect": "answer",
+   "kind": "unusual_wording",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 0.7,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "average_delivery_days",
+     "group_by": "customer_state"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Top 10 Customer States by Average Delivery Time\n\nRR has the highest average delivery time (29.39 days), followed by AP (27.19 days) and AM (26.43 days).\n\n| Rank | State | Average delivery days |\n|---:|---|---:|\n| 1 | RR | 29.39 |\n| 2 | AP | 27.19 |\n| 3 | AM | 26.43 |\n| 4 | AL | 24.54 |\n| 5 | PA | 23.77 |\n| 6 | MA | 21.57 |\n| 7 | SE | 21.52 |\n| 8 | CE | 21.27 |\n| 9 | AC | 21.04 |\n| 10 | PB | 20.43 |"
+  },
+  {
+   "n": 15,
+   "question": "In which month of 2018 were deliveries most often late?",
+   "expect": "answer",
+   "kind": "in_scope",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 0.8,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "late_delivery_rate",
+     "group_by": "month"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Top 8 Months by Late Delivery Rate in 2018\n\nMarch 2018 has the highest late delivery rate (18.96%), followed by February 2018 (14.13%) and May 2018 (6.56%).\n\n| Rank | Month | Late delivery rate |\n|---:|---|---:|\n| 1 | 2018-03 | 18.96% |\n| 2 | 2018-02 | 14.13% |\n| 3 | 2018-05 | 6.56% |\n| 4 | 2018-08 | 6.19% |\n| 5 | 2018-01 | 5.70% |\n| 6 | 2018-04 | 4.50% |\n| 7 | 2018-07 | 3.38% |\n| 8 | 2018-06 | 1.16% |"
+  },
+  {
+   "n": 16,
+   "question": "Do late deliveries hurt customer ratings?",
+   "expect": "answer",
+   "kind": "in_scope",
+   "outcome": "safe_failure",
+   "detail": "refused_out_of_scope",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question uses \"hurt\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question uses \"hurt\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+  },
+  {
+   "n": 17,
+   "question": "How often are orders delivered after the promised date?",
+   "expect": "answer",
+   "kind": "unusual_wording",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 1.8,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "late_delivery_rate",
+     "group_by": "customer_state"
+    },
+    {
+     "metric": "late_delivery_rate",
+     "group_by": null
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Late Delivery Rate\n\nThe late delivery rate was 6.77%.\n\n| Late delivery rate |\n|---:|\n| 6.77% |"
+  },
+  {
+   "n": 18,
+   "question": "What is the most popular payment method?",
+   "expect": "answer",
+   "kind": "trap",
+   "outcome": "safe_failure",
+   "detail": "refused_out_of_scope",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "\"popular\" depends on how often something is used, which the supported metrics do not measure."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. \"popular\" depends on how often something is used, which the supported metrics do not measure."
+  },
+  {
+   "n": 19,
+   "question": "How much did customers pay in total with vouchers?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one payment method (\"vouchers\"). Answers can compare all payment methods, but not filter one."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one payment method (\"vouchers\"). Answers can compare all payment methods, but not filter one."
+  },
+  {
+   "n": 20,
+   "question": "What is the average number of installments for credit card payments?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one payment method (\"credit card\"). Answers can compare all payment methods, but not filter one."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one payment method (\"credit card\"). Answers can compare all payment methods, but not filter one."
+  },
+  {
+   "n": 21,
+   "question": "What's the average customer rating?",
+   "expect": "answer",
+   "kind": "in_scope",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 1.7,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "average_review_score",
+     "group_by": "customer_state"
+    },
+    {
+     "metric": "average_review_score",
+     "group_by": null
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Average Review Score\n\nThe average review score was 4.09.\n\n| Average review score |\n|---:|\n| 4.09 |"
+  },
+  {
+   "n": 22,
+   "question": "Which month of 2017 had the worst reviews?",
+   "expect": "answer",
+   "kind": "trap",
+   "outcome": "safe_failure",
+   "detail": "refused_out_of_scope",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "\"worst\" does not say which measure to use. Please ask for the highest or lowest value of a specific measure, for example the lowest average review score."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. \"worst\" does not say which measure to use. Please ask for the highest or lowest value of a specific measure, for example the lowest average review score."
+  },
+  {
+   "n": 23,
+   "question": "How many reviews did we receive in 2018?",
+   "expect": "answer",
+   "kind": "trap",
+   "outcome": "safe_failure",
+   "detail": "refused_out_of_scope",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question refers to when something was received, but the data is analysed by purchase date, so an answer could describe a different period."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question refers to when something was received, but the data is analysed by purchase date, so an answer could describe a different period."
+  },
+  {
+   "n": 24,
+   "question": "What is our profit margin by category?",
+   "expect": "refuse",
+   "kind": "impossible",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question uses \"profit\", \"margin\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question uses \"profit\", \"margin\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+  },
+  {
+   "n": 25,
+   "question": "Which marketing campaign drove the most sales in 2018?",
+   "expect": "refuse",
+   "kind": "impossible",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question uses \"marketing\", \"campaign\", \"drove\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question uses \"marketing\", \"campaign\", \"drove\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+  },
+  {
+   "n": 26,
+   "question": "How many products do we currently have in stock?",
+   "expect": "refuse",
+   "kind": "impossible",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question uses \"currently\", \"stock\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question uses \"currently\", \"stock\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+  },
+  {
+   "n": 27,
+   "question": "What will sales look like next quarter?",
+   "expect": "refuse",
+   "kind": "impossible",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The data only covers past orders (2016 to 2018), so it cannot be used to forecast future values."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The data only covers past orders (2016 to 2018), so it cannot be used to forecast future values."
+  },
+  {
+   "n": 28,
+   "question": "Why did revenue drop in June 2018?",
+   "expect": "refuse",
+   "kind": "impossible",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The data shows what happened, but not why it happened, so causes cannot be determined from it."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The data shows what happened, but not why it happened, so causes cannot be determined from it."
+  },
+  {
+   "n": 29,
+   "question": "Who are our top 10 customers by spend?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question uses \"spend\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question uses \"spend\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+  },
+  {
+   "n": 30,
+   "question": "Which sellers generate the most revenue?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question uses \"sellers\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question uses \"sellers\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+  },
+  {
+   "n": 31,
+   "question": "What was the revenue in Rio de Janeiro in 2017?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one state (Rio De Janeiro). Answers can compare all states, but not filter one."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one state (Rio De Janeiro). Answers can compare all states, but not filter one."
+  },
+  {
+   "n": 32,
+   "question": "Which product sold the most units?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 5.3,
+   "status": "no_reliable_answer",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "units_sold",
+     "group_by": "category"
+    },
+    {
+     "metric": "units_sold",
+     "group_by": null
+    }
+   ],
+   "issues": [
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    },
+    {
+     "kind": "info",
+     "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+    }
+   ],
+   "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month)."
+  }
+ ]
+}

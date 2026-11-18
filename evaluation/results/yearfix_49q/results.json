@@ -1,0 +1,1177 @@
+{
+ "models": {
+  "supervisor": "qwen2.5:1.5b",
+  "data_analyst": "qwen2.5:1.5b",
+  "analytics": "qwen2.5:1.5b"
+ },
+ "summary": {
+  "correct": 1,
+  "wrong": 0,
+  "safe_failure": 3,
+  "correct_refusal": 45,
+  "wrongly_answered": 0
+ },
+ "by_kind": {
+  "gap": {
+   "correct_refusal": 37
+  },
+  "catalog": {
+   "safe_failure": 3,
+   "correct": 1
+  },
+  "impossible": {
+   "correct_refusal": 8
+  }
+ },
+ "ollama_ps": "NAME            ID              SIZE      PROCESSOR          CONTEXT    RUNNER      UNTIL              \nqwen2.5:1.5b    65ec06548149    1.1 GB    24%/76% CPU/GPU    4096       llamacpp    4 minutes from now",
+ "gpu": "844 MiB, 2048 MiB",
+ "results": [
+  {
+   "n": 1,
+   "question": "How many unique products have been sold through our platform in Brazil during the specified period?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question uses \"unique\", \"through\", \"specified\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question uses \"unique\", \"through\", \"specified\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+  },
+  {
+   "n": 2,
+   "question": "What is the total revenue generated from each payment method during the period September 2016 to October 2018?",
+   "expect": "answer",
+   "kind": "catalog",
+   "outcome": "safe_failure",
+   "detail": "no_reliable_answer",
+   "seconds": 6.9,
+   "status": "no_reliable_answer",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "revenue",
+     "group_by": "payment_type"
+    }
+   ],
+   "issues": [
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    },
+    {
+     "kind": "info",
+     "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+    }
+   ],
+   "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month)."
+  },
+  {
+   "n": 3,
+   "question": "Which Brazilian state(s) saw the highest number of orders during the period September 2016 to October 2018?",
+   "expect": "answer",
+   "kind": "catalog",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 2.0,
+   "status": "answered",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "orders",
+     "group_by": "seller_state"
+    },
+    {
+     "metric": "orders",
+     "group_by": "customer_state"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Top 10 Customer States by Number of Orders\n\nSP has the highest number of orders (41,746), followed by RJ (12,852) and MG (11,635).\n\n| Rank | State | Orders |\n|---:|---|---:|\n| 1 | SP | 41,746 |\n| 2 | RJ | 12,852 |\n| 3 | MG | 11,635 |\n| 4 | RS | 5,466 |\n| 5 | PR | 5,045 |\n| 6 | SC | 3,637 |\n| 7 | BA | 3,380 |\n| 8 | DF | 2,140 |\n| 9 | ES | 2,033 |\n| 10 | GO | 2,020 |"
+  },
+  {
+   "n": 4,
+   "question": "What is the average delivery duration from the order placement to the estimated delivery date?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question uses \"placement\", \"estimated\", \"date\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question uses \"placement\", \"estimated\", \"date\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+  },
+  {
+   "n": 5,
+   "question": "What are the top three categories of products that have the highest number of orders during the period September 2016 to October 2018?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 2.4,
+   "status": "no_reliable_answer",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "orders",
+     "group_by": "category"
+    }
+   ],
+   "issues": [
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    },
+    {
+     "kind": "info",
+     "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+    }
+   ],
+   "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month)."
+  },
+  {
+   "n": 6,
+   "question": "How many orders were canceled or refunded during the period September 2016 to October 2018?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about \"canceled\" orders, but the supported metrics do not separate orders by status, so an answer would be misleading."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about \"canceled\" orders, but the supported metrics do not separate orders by status, so an answer would be misleading."
+  },
+  {
+   "n": 7,
+   "question": "What is the percentage of orders that include multiple items versus single item orders?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question uses \"include\", \"multiple\", \"single\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question uses \"include\", \"multiple\", \"single\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+  },
+  {
+   "n": 8,
+   "question": "Which payment method had the highest average order value during the period September 2016 to October 2018?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 2.5,
+   "status": "no_reliable_answer",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "average_order_value",
+     "group_by": "payment_type"
+    }
+   ],
+   "issues": [
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    },
+    {
+     "kind": "info",
+     "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+    }
+   ],
+   "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month)."
+  },
+  {
+   "n": 9,
+   "question": "What is the average number of days it takes for an order to reach the customer after being shipped?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question uses \"average\", \"takes\", \"reach\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question uses \"average\", \"takes\", \"reach\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+  },
+  {
+   "n": 10,
+   "question": "How many different sellers participated in our marketplace during the period September 2016 to October 2018?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question uses \"different\", \"sellers\", \"participated\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question uses \"different\", \"sellers\", \"participated\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+  },
+  {
+   "n": 11,
+   "question": "What are the most common delivery dates for our products? Is there a specific pattern?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "\"most common\" depends on how often something is used, which the supported metrics do not measure."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. \"most common\" depends on how often something is used, which the supported metrics do not measure."
+  },
+  {
+   "n": 12,
+   "question": "Which category of products had the highest average delivery time?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 2.4,
+   "status": "no_reliable_answer",
+   "reference_request": null,
+   "agent_requests": [
+    {
+     "metric": "average_delivery_days",
+     "group_by": "category"
+    }
+   ],
+   "issues": [
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    },
+    {
+     "kind": "info",
+     "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+    }
+   ],
+   "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month)."
+  },
+  {
+   "n": 13,
+   "question": "What is the average delivery time for orders placed in October 2018 compared to September 2018?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one specific period (\"October\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one specific period (\"October\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+  },
+  {
+   "n": 14,
+   "question": "What is the correlation between the number of reviews and the number of orders for a given product category?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question uses \"given\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question uses \"given\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+  },
+  {
+   "n": 15,
+   "question": "Which payment method was used by the most number of customers for orders during the period September 2016 to October 2018?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question uses \"used\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question uses \"used\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+  },
+  {
+   "n": 16,
+   "question": "What are the top three categories of products that have the highest number of complaints or negative reviews?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question uses \"complaints\", \"negative\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question uses \"complaints\", \"negative\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+  },
+  {
+   "n": 17,
+   "question": "What is the average number of days for an order to be delivered from an order placement?",
+   "expect": "answer",
+   "kind": "catalog",
+   "outcome": "safe_failure",
+   "detail": "refused_out_of_scope",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question uses \"average\", \"placement\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question uses \"average\", \"placement\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+  },
+  {
+   "n": 18,
+   "question": "What is the difference in average order value for orders placed in October 2018 compared to September 2018?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one specific period (\"October\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one specific period (\"October\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+  },
+  {
+   "n": 19,
+   "question": "What is the relationship between delivery time and product category? Are certain categories faster or slower to deliver?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question uses \"certain\", \"faster\", \"slower\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question uses \"certain\", \"faster\", \"slower\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+  },
+  {
+   "n": 20,
+   "question": "What is the average number of items per order, and how does this vary by product category?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question uses \"average\", \"vary\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question uses \"average\", \"vary\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+  },
+  {
+   "n": 21,
+   "question": "What is the most common reason for order cancellations or refunds?",
+   "expect": "refuse",
+   "kind": "impossible",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The data shows what happened, but not why it happened, so causes cannot be determined from it."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The data shows what happened, but not why it happened, so causes cannot be determined from it."
+  },
+  {
+   "n": 22,
+   "question": "Which seller had the highest revenue contribution to the platform during the period September 2016 to October 2018?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question uses \"seller\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question uses \"seller\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+  },
+  {
+   "n": 23,
+   "question": "What is the total revenue generated from orders with more than one payment method used?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question uses \"than\", \"used\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question uses \"than\", \"used\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+  },
+  {
+   "n": 24,
+   "question": "What is the most common reason for orders being shipped in error, and how has this changed over time?",
+   "expect": "refuse",
+   "kind": "impossible",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The data shows what happened, but not why it happened, so causes cannot be determined from it."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The data shows what happened, but not why it happened, so causes cannot be determined from it."
+  },
+  {
+   "n": 25,
+   "question": "How has the average delivery time changed from September 2016 to October 2018? Is there an improvement in delivery times?",
+   "expect": "answer",
+   "kind": "catalog",
+   "outcome": "safe_failure",
+   "detail": "refused_out_of_scope",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question uses \"improvement\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question uses \"improvement\", which I cannot match to a supported measure, grouping or period, so an answer could ignore part of the question. Supported measures include revenue, units sold, orders, customers, payments, delivery time, late deliveries and review scores."
+  },
+  {
+   "n": 26,
+   "question": "How many orders were placed in the month of September 2016 and what were the total sales for that month?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one specific period (\"September\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one specific period (\"September\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+  },
+  {
+   "n": 27,
+   "question": "Which category of products saw the highest sales in October 2018 and what were the units sold?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one specific period (\"October\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one specific period (\"October\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+  },
+  {
+   "n": 28,
+   "question": "What was the average payment method used for orders placed in January 2017?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one specific period (\"January\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one specific period (\"January\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+  },
+  {
+   "n": 29,
+   "question": "How many unique sellers were active in the state of S\u00e3o Paulo during the period from September 2016 to October 2018?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one state (Sao Paulo). Answers can compare all states, but not filter one."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one state (Sao Paulo). Answers can compare all states, but not filter one."
+  },
+  {
+   "n": 30,
+   "question": "Which payment method saw the highest number of returns in September 2017?",
+   "expect": "refuse",
+   "kind": "impossible",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about \"returns\" orders, but the supported metrics do not separate orders by status, so an answer would be misleading."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about \"returns\" orders, but the supported metrics do not separate orders by status, so an answer would be misleading."
+  },
+  {
+   "n": 31,
+   "question": "What is the average number of reviews per seller in Brazil as of the end of October 2018?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one specific period (\"October\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one specific period (\"October\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+  },
+  {
+   "n": 32,
+   "question": "Which product category had the lowest average price point in July 2018?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one specific period (\"July\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one specific period (\"July\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+  },
+  {
+   "n": 33,
+   "question": "How many customers made more than one purchase in October 2017, and what was the total number of products they bought?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one specific period (\"October\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one specific period (\"October\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+  },
+  {
+   "n": 34,
+   "question": "What was the percentage increase in orders from September 2016 to October 2018?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question compares two specific months (\"from September 2016 to October 2018\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question compares two specific months (\"from September 2016 to October 2018\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+  },
+  {
+   "n": 35,
+   "question": "Which product category had the highest percentage of orders that were returned in February 2018?",
+   "expect": "refuse",
+   "kind": "impossible",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about \"returned\" orders, but the supported metrics do not separate orders by status, so an answer would be misleading."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about \"returned\" orders, but the supported metrics do not separate orders by status, so an answer would be misleading."
+  },
+  {
+   "n": 36,
+   "question": "How many orders received complaints or feedback that led to a refund in March 2017?",
+   "expect": "refuse",
+   "kind": "impossible",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about \"refund\" orders, but the supported metrics do not separate orders by status, so an answer would be misleading."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about \"refund\" orders, but the supported metrics do not separate orders by status, so an answer would be misleading."
+  },
+  {
+   "n": 37,
+   "question": "What was the total revenue generated from product sales in the state of Rio de Janeiro in October 2017?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one specific period (\"October\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one specific period (\"October\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+  },
+  {
+   "n": 38,
+   "question": "What were the top 5 Brazilian states with the highest sales in September 2018 and what was the total sales for those states?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one specific period (\"September\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one specific period (\"September\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+  },
+  {
+   "n": 39,
+   "question": "How many customers placed their orders through mobile applications in June 2017, and what percentage of total orders did they represent?",
+   "expect": "refuse",
+   "kind": "impossible",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one specific period (\"June\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one specific period (\"June\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+  },
+  {
+   "n": 40,
+   "question": "Which payment method was used by customers who made orders in December 2016 and didn't use it in January 2017?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one specific period (\"December\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one specific period (\"December\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+  },
+  {
+   "n": 41,
+   "question": "What was the average delivery time from the order date to the estimated delivery date for all orders in July 2017?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one specific period (\"July\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one specific period (\"July\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+  },
+  {
+   "n": 42,
+   "question": "How many customers had their orders cancelled or returned for a reason other than the product being out of stock in February 2018?",
+   "expect": "refuse",
+   "kind": "impossible",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about \"cancelled\" orders, but the supported metrics do not separate orders by status, so an answer would be misleading."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about \"cancelled\" orders, but the supported metrics do not separate orders by status, so an answer would be misleading."
+  },
+  {
+   "n": 43,
+   "question": "What was the total number of products sold in the first quarter of 2017?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one specific period (\"first quarter\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one specific period (\"first quarter\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+  },
+  {
+   "n": 44,
+   "question": "Which product category had the lowest number of products sold in September 2016?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one specific period (\"September\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one specific period (\"September\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+  },
+  {
+   "n": 45,
+   "question": "How many customers who placed orders in August 2017 left positive reviews after their purchase?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one specific period (\"August\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one specific period (\"August\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+  },
+  {
+   "n": 46,
+   "question": "What was the total sales revenue for all orders in the state of Santa Catarina in December 2017?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one specific period (\"December\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one specific period (\"December\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+  },
+  {
+   "n": 47,
+   "question": "How many customers made more than 5 purchases in the state of Minas Gerais in the period from September 2016 to October 2018?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one state (Minas Gerais). Answers can compare all states, but not filter one."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one state (Minas Gerais). Answers can compare all states, but not filter one."
+  },
+  {
+   "n": 48,
+   "question": "What was the percentage of orders that had a delivery date earlier than the estimated delivery date in January 2018?",
+   "expect": "refuse",
+   "kind": "gap",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about one specific period (\"January\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about one specific period (\"January\"), but the supported metrics cover whole years or every month, so an answer could describe a different period."
+  },
+  {
+   "n": 49,
+   "question": "How many customers who made orders in March 2017 received a refund due to the seller not delivering the product as promised?",
+   "expect": "refuse",
+   "kind": "impossible",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question is about \"refund\" orders, but the supported metrics do not separate orders by status, so an answer would be misleading."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question is about \"refund\" orders, but the supported metrics do not separate orders by status, so an answer would be misleading."
+  }
+ ]
+}

@@ -1,0 +1,181 @@
+[
+ {
+  "question": "Which states receive the most orders?",
+  "expected": "answer",
+  "answered": true,
+  "status": "answered",
+  "seconds": 3.0,
+  "agent_requests": [
+   {
+    "metric": "orders",
+    "group_by": "customer_state"
+   }
+  ],
+  "issues": [],
+  "shown_rows": [
+   {
+    "customer_state_std": "SP",
+    "orders": 41746
+   },
+   {
+    "customer_state_std": "RJ",
+    "orders": 12852
+   },
+   {
+    "customer_state_std": "MG",
+    "orders": 11635
+   },
+   {
+    "customer_state_std": "RS",
+    "orders": 5466
+   },
+   {
+    "customer_state_std": "PR",
+    "orders": 5045
+   }
+  ],
+  "ground_truth": [
+   {
+    "customer_state_std": "SP",
+    "orders": 41746
+   },
+   {
+    "customer_state_std": "RJ",
+    "orders": 12852
+   },
+   {
+    "customer_state_std": "MG",
+    "orders": 11635
+   }
+  ],
+  "user_sees": "### Top 10 Customer States by Number of Orders\n\nSP has the highest number of orders (41,746), followed by RJ (12,852) and MG (11,635).\n\n| Rank | State | Orders |\n|---:|---|---:|\n| 1 | SP | 41,746 |\n| 2 | RJ | 12,852 |\n| 3 | MG | 11,635 |\n| 4 | RS | 5,466 |\n| 5 | PR | 5,045 |\n| 6 | SC | 3,637 |\n| 7 | BA | 3,380 |\n| 8 | DF | 2,140 |\n| 9 | ES | 2,033 |\n| 10 | GO | 2,020 |",
+  "trace": "[1] supervisor.route -> data_analyst (no data yet) | task: Which states receive the most orders?\n[1] data_analyst.query attempt 1: 10 rows\n      request: {\"metric\": \"orders\", \"group_by\": \"customer_state\"}\n      sql: SELECT o.customer_state_std AS customer_state_std, COUNT(*) AS orders FROM warehouse.fact_orders AS o GROUP BY 1 ORDER BY orders DESC NULLS LAST LIMIT 10\n[2] supervisor.route -> report (no further handoffs allowed) | task: Write the final answer.\n[2] supervisor.report: 0 caveat(s)"
+ },
+ {
+  "question": "Which categories receive the most orders?",
+  "expected": "answer (data exists; orders per category)",
+  "answered": false,
+  "status": "no_reliable_answer",
+  "seconds": 4.4,
+  "agent_requests": [
+   {
+    "metric": "orders",
+    "group_by": "category"
+   }
+  ],
+  "issues": [
+   {
+    "kind": "data",
+    "message": "No data could be retrieved for this question."
+   },
+   {
+    "kind": "info",
+    "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+   }
+  ],
+  "shown_rows": [],
+  "ground_truth": [
+   {
+    "category_reporting": "bed_bath_table",
+    "n_orders": 9417
+   },
+   {
+    "category_reporting": "health_beauty",
+    "n_orders": 8836
+   },
+   {
+    "category_reporting": "sports_leisure",
+    "n_orders": 7720
+   }
+  ],
+  "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month).",
+  "trace": "[1] supervisor.route -> data_analyst (no data yet) | task: Which categories receive the most orders?\n[1] data_analyst.query attempt 1: ERROR: Invalid request: orders cannot be grouped by category. Allowed groupings: customer_state, month.\n      request: {\"metric\": \"orders\", \"group_by\": \"category\"}\n[1] data_analyst.duplicate_request attempt 2: repeated an already-failed request (not run)\n[1] data_analyst.duplicate_request attempt 2: repeated an already-failed request (not run)\n[2] supervisor.route -> report (the Data Analyst kept repeating a failed request) | task: Explain that no reliable data could be retrieved.\n[2] supervisor.report: 2 caveat(s)"
+ },
+ {
+  "question": "How many reviews did we receive in 2018?",
+  "expected": "refuse (review date is not the purchase date)",
+  "answered": false,
+  "status": "refused_out_of_scope",
+  "seconds": 0.0,
+  "agent_requests": [],
+  "issues": [
+   {
+    "kind": "scope",
+    "message": "The question refers to when something was \"receive\", but the data is analysed by purchase date, so an answer could describe a different period."
+   },
+   {
+    "kind": "data",
+    "message": "No data could be retrieved for this question."
+   }
+  ],
+  "shown_rows": [],
+  "ground_truth": null,
+  "user_sees": "I can't answer this question reliably. The question refers to when something was \"receive\", but the data is analysed by purchase date, so an answer could describe a different period.",
+  "trace": "[1] supervisor.route -> report (question cannot be answered from the data) | task: Explain that the question cannot be answered from the data.\n[1] supervisor.report: 2 caveat(s)"
+ },
+ {
+  "question": "How many new customers did we acquire in 2017?",
+  "expected": "refuse (new customers not supported)",
+  "answered": false,
+  "status": "refused_out_of_scope",
+  "seconds": 0.0,
+  "agent_requests": [],
+  "issues": [
+   {
+    "kind": "scope",
+    "message": "The question depends on \"new customers\", but the supported metrics do not separate new and returning customers, so an answer would be misleading."
+   },
+   {
+    "kind": "data",
+    "message": "No data could be retrieved for this question."
+   }
+  ],
+  "shown_rows": [],
+  "ground_truth": null,
+  "user_sees": "I can't answer this question reliably. The question depends on \"new customers\", but the supported metrics do not separate new and returning customers, so an answer would be misleading.",
+  "trace": "[1] supervisor.route -> report (question cannot be answered from the data) | task: Explain that the question cannot be answered from the data.\n[1] supervisor.report: 2 caveat(s)"
+ },
+ {
+  "question": "Which are the best-selling categories?",
+  "expected": "answer (revenue or units by category)",
+  "answered": false,
+  "status": "no_reliable_answer",
+  "seconds": 2.2,
+  "agent_requests": [
+   {
+    "metric": "units_sold",
+    "group_by": "category"
+   }
+  ],
+  "issues": [
+   {
+    "kind": "data",
+    "message": "No data could be retrieved for this question."
+   },
+   {
+    "kind": "info",
+    "message": "Data Analyst kept proposing a request that had already failed; stopped retrying."
+   }
+  ],
+  "shown_rows": [],
+  "ground_truth": [
+   {
+    "category_reporting": "health_beauty",
+    "items_price_total": 1258681.34,
+    "units": 9670
+   },
+   {
+    "category_reporting": "watches_gifts",
+    "items_price_total": 1205005.68,
+    "units": 5991
+   },
+   {
+    "category_reporting": "bed_bath_table",
+    "items_price_total": 1036988.68,
+    "units": 11115
+   }
+  ],
+  "user_sees": "I couldn't produce a reliable answer to this question from the available data.\n\nPlease try rephrasing it, for example by naming the measure (such as revenue, payments, delivery time or review scores) and how to group it (such as by category, state or month).",
+  "trace": "[1] supervisor.route -> data_analyst (no data yet) | task: Which are the best-selling categories?\n[1] data_analyst.query attempt 1: ERROR: Invalid request: The metric units_sold does not match the question. The question names none of the supported metrics.\n      request: {\"metric\": \"units_sold\", \"group_by\": \"category\"}\n[1] data_analyst.duplicate_request attempt 2: repeated an already-failed request (not run)\n[1] data_analyst.duplicate_request attempt 2: repeated an already-failed request (not run)\n[2] supervisor.route -> report (the Data Analyst kept repeating a failed request) | task: Explain that no reliable data could be retrieved.\n[2] supervisor.report: 2 caveat(s)"
+ }
+]

@@ -1,0 +1,120 @@
+{
+ "models": {
+  "supervisor": "qwen2.5:1.5b",
+  "data_analyst": "qwen2.5:1.5b",
+  "analytics": "qwen2.5:1.5b"
+ },
+ "results": [
+  {
+   "q": 1,
+   "question": "What are the top 5 product categories by sales revenue?",
+   "seconds": 73.5,
+   "sql_executed": 1,
+   "sql_ok": 0,
+   "sql_failed": 1,
+   "duplicates_blocked": 4,
+   "routes": [
+    "data_analyst",
+    "data_analyst",
+    "report"
+   ],
+   "analyses": [],
+   "datasets": {},
+   "checks": [
+    "Data Analyst kept proposing a query that had already failed; stopped retrying."
+   ],
+   "final_answer": "**Answer:** I could not retrieve data from the database to answer this question, so no answer is given rather than a guess.\n\n**Evidence:**\n\n**Caveats:**\n- Data Analyst kept proposing a query that had already failed; stopped retrying.",
+   "ollama_ps": "NAME            ID              SIZE      PROCESSOR          CONTEXT    RUNNER      UNTIL              \nqwen2.5:1.5b    65ec06548149    1.1 GB    24%/76% CPU/GPU    4096       llamacpp    4 minutes from now",
+   "gpu_mem": "844 MiB, 2048 MiB"
+  },
+  {
+   "q": 2,
+   "question": "How did monthly sales revenue grow during 2018?",
+   "seconds": 54.1,
+   "sql_executed": 1,
+   "sql_ok": 0,
+   "sql_failed": 1,
+   "duplicates_blocked": 4,
+   "routes": [
+    "data_analyst",
+    "data_analyst",
+    "report"
+   ],
+   "analyses": [],
+   "datasets": {},
+   "checks": [
+    "Data Analyst kept proposing a query that had already failed; stopped retrying."
+   ],
+   "final_answer": "**Answer:** I could not retrieve data from the database to answer this question, so no answer is given rather than a guess.\n\n**Evidence:**\n\n**Caveats:**\n- Data Analyst kept proposing a query that had already failed; stopped retrying.",
+   "ollama_ps": "NAME            ID              SIZE      PROCESSOR          CONTEXT    RUNNER      UNTIL              \nqwen2.5:1.5b    65ec06548149    1.1 GB    24%/76% CPU/GPU    4096       llamacpp    4 minutes from now",
+   "gpu_mem": "844 MiB, 2048 MiB"
+  },
+  {
+   "q": 3,
+   "question": "Which customer states have the highest late delivery rate?",
+   "seconds": 86.7,
+   "sql_executed": 1,
+   "sql_ok": 0,
+   "sql_failed": 1,
+   "duplicates_blocked": 4,
+   "routes": [
+    "data_analyst",
+    "data_analyst",
+    "report"
+   ],
+   "analyses": [],
+   "datasets": {},
+   "checks": [
+    "Data Analyst kept proposing a query that had already failed; stopped retrying."
+   ],
+   "final_answer": "**Answer:** I could not retrieve data from the database to answer this question, so no answer is given rather than a guess.\n\n**Evidence:**\n\n**Caveats:**\n- Data Analyst kept proposing a query that had already failed; stopped retrying.",
+   "ollama_ps": "NAME            ID              SIZE      PROCESSOR          CONTEXT    RUNNER      UNTIL              \nqwen2.5:1.5b    65ec06548149    1.1 GB    24%/76% CPU/GPU    4096       llamacpp    4 minutes from now",
+   "gpu_mem": "844 MiB, 2048 MiB"
+  },
+  {
+   "q": 4,
+   "question": "What share of payment value comes from each payment type?",
+   "seconds": 76.1,
+   "sql_executed": 2,
+   "sql_ok": 0,
+   "sql_failed": 2,
+   "duplicates_blocked": 4,
+   "routes": [
+    "data_analyst",
+    "data_analyst",
+    "report"
+   ],
+   "analyses": [],
+   "datasets": {},
+   "checks": [
+    "Data Analyst kept proposing a query that had already failed; stopped retrying."
+   ],
+   "final_answer": "**Answer:** I could not retrieve data from the database to answer this question, so no answer is given rather than a guess.\n\n**Evidence:**\n\n**Caveats:**\n- Data Analyst kept proposing a query that had already failed; stopped retrying.",
+   "ollama_ps": "NAME            ID              SIZE      PROCESSOR          CONTEXT    RUNNER      UNTIL              \nqwen2.5:1.5b    65ec06548149    1.1 GB    24%/76% CPU/GPU    4096       llamacpp    4 minutes from now",
+   "gpu_mem": "844 MiB, 2048 MiB"
+  },
+  {
+   "q": 5,
+   "question": "Is there a relationship between delivery delays and review scores?",
+   "seconds": 123.7,
+   "sql_executed": 3,
+   "sql_ok": 0,
+   "sql_failed": 3,
+   "duplicates_blocked": 2,
+   "routes": [
+    "data_analyst",
+    "data_analyst",
+    "report"
+   ],
+   "analyses": [],
+   "datasets": {},
+   "checks": [
+    "Data Analyst failed after 3 attempts: Fetch delivery delays and review scores for the past year, grouped by delivery delay time, to calculate the correlation between delivery delays and review scores.",
+    "Data Analyst kept proposing a query that had already failed; stopped retrying."
+   ],
+   "final_answer": "**Answer:** I could not retrieve data from the database to answer this question, so no answer is given rather than a guess.\n\n**Evidence:**\n\n**Caveats:**\n- Data Analyst failed after 3 attempts: Fetch delivery delays and review scores for the past year, grouped by delivery delay time, to calculate the correlation between delivery delays and review scores.\n- Data Analyst kept proposing a query that had already failed; stopped retrying.",
+   "ollama_ps": "NAME            ID              SIZE      PROCESSOR          CONTEXT    RUNNER      UNTIL              \nqwen2.5:1.5b    65ec06548149    1.1 GB    24%/76% CPU/GPU    4096       llamacpp    4 minutes from now",
+   "gpu_mem": "844 MiB, 2048 MiB"
+  }
+ ]
+}

@@ -1,0 +1,455 @@
+{
+ "description": "17-question benchmark: 13 must be answered (ground truth from hand-written SQL that does not use the metric catalog), 4 must be refused. Refusals count as correct.",
+ "questions": [
+  {
+   "question": "What are the top 5 product categories by sales revenue?",
+   "expect": "answer",
+   "ground_truth_sql": "SELECT category_reporting, items_price_total FROM analytics.category_performance ORDER BY items_price_total DESC LIMIT 5",
+   "expected_rows": [
+    {
+     "category_reporting": "health_beauty",
+     "items_price_total": 1258681.34
+    },
+    {
+     "category_reporting": "watches_gifts",
+     "items_price_total": 1205005.68
+    },
+    {
+     "category_reporting": "bed_bath_table",
+     "items_price_total": 1036988.68
+    },
+    {
+     "category_reporting": "sports_leisure",
+     "items_price_total": 988048.97
+    },
+    {
+     "category_reporting": "computers_accessories",
+     "items_price_total": 911954.32
+    }
+   ],
+   "reference_request": {
+    "metric": "revenue",
+    "group_by": "category"
+   }
+  },
+  {
+   "question": "How did monthly sales revenue grow during 2018?",
+   "expect": "answer",
+   "ground_truth_sql": "SELECT year_month, ROUND(SUM(items_price_total), 2) AS revenue FROM analytics.sales_daily WHERE year = 2018 AND in_candidate_window GROUP BY year_month ORDER BY year_month",
+   "expected_rows": [
+    {
+     "year_month": "2018-01",
+     "revenue": 950030.36
+    },
+    {
+     "year_month": "2018-02",
+     "revenue": 844178.71
+    },
+    {
+     "year_month": "2018-03",
+     "revenue": 983213.44
+    },
+    {
+     "year_month": "2018-04",
+     "revenue": 996647.75
+    },
+    {
+     "year_month": "2018-05",
+     "revenue": 996517.68
+    },
+    {
+     "year_month": "2018-06",
+     "revenue": 865124.31
+    },
+    {
+     "year_month": "2018-07",
+     "revenue": 895507.22
+    },
+    {
+     "year_month": "2018-08",
+     "revenue": 854686.33
+    }
+   ],
+   "reference_request": {
+    "metric": "revenue",
+    "group_by": "month"
+   }
+  },
+  {
+   "question": "Which customer states have the highest late delivery rate?",
+   "expect": "answer",
+   "ground_truth_sql": "SELECT customer_state_std, late_rate FROM analytics.delivery_by_state ORDER BY late_rate DESC LIMIT 5",
+   "expected_rows": [
+    {
+     "customer_state_std": "AL",
+     "late_rate": 0.2141
+    },
+    {
+     "customer_state_std": "MA",
+     "late_rate": 0.1743
+    },
+    {
+     "customer_state_std": "SE",
+     "late_rate": 0.1522
+    },
+    {
+     "customer_state_std": "PI",
+     "late_rate": 0.1387
+    },
+    {
+     "customer_state_std": "CE",
+     "late_rate": 0.1376
+    }
+   ],
+   "reference_request": {
+    "metric": "late_delivery_rate",
+    "group_by": "customer_state"
+   }
+  },
+  {
+   "question": "What share of payment value comes from each payment type?",
+   "expect": "answer",
+   "ground_truth_sql": "SELECT payment_type, ROUND(100 * SUM(payment_value) / SUM(SUM(payment_value)) OVER (), 2) AS share_pct FROM warehouse.fact_payments GROUP BY payment_type ORDER BY share_pct DESC",
+   "expected_rows": [
+    {
+     "payment_type": "credit_card",
+     "share_pct": 78.34
+    },
+    {
+     "payment_type": "boleto",
+     "share_pct": 17.92
+    },
+    {
+     "payment_type": "voucher",
+     "share_pct": 2.37
+    },
+    {
+     "payment_type": "debit_card",
+     "share_pct": 1.36
+    },
+    {
+     "payment_type": "not_defined",
+     "share_pct": 0.0
+    }
+   ],
+   "reference_request": {
+    "metric": "payment_value",
+    "group_by": "payment_type"
+   }
+  },
+  {
+   "question": "Is there a relationship between delivery delays and review scores?",
+   "expect": "answer",
+   "ground_truth_sql": "SELECT CASE WHEN o.is_late THEN 'late' ELSE 'on_time' END AS delivery_status, ROUND(AVG(r.review_score), 3) AS avg_score FROM warehouse.fact_reviews r JOIN warehouse.fact_orders o ON o.order_id = r.order_id WHERE o.order_status = 'delivered' AND o.order_delivered_customer_date IS NOT NULL GROUP BY 1 ORDER BY 1",
+   "expected_rows": [
+    {
+     "delivery_status": "late",
+     "avg_score": 2.271
+    },
+    {
+     "delivery_status": "on_time",
+     "avg_score": 4.29
+    }
+   ],
+   "reference_request": {
+    "metric": "average_review_score",
+    "group_by": "delivery_status"
+   }
+  },
+  {
+   "question": "Which 3 customer states generated the most revenue in 2017?",
+   "expect": "answer",
+   "ground_truth_sql": "SELECT o.customer_state_std, ROUND(SUM(l.line_price_total), 2) AS revenue FROM warehouse.fact_order_lines l JOIN warehouse.fact_orders o ON o.order_id = l.order_id WHERE l.purchase_date >= DATE '2017-01-01' AND l.purchase_date < DATE '2018-01-01' GROUP BY 1 ORDER BY 2 DESC LIMIT 3",
+   "expected_rows": [
+    {
+     "customer_state_std": "SP",
+     "revenue": 2212487.0
+    },
+    {
+     "customer_state_std": "RJ",
+     "revenue": 906199.81
+    },
+    {
+     "customer_state_std": "MG",
+     "revenue": 723229.03
+    }
+   ],
+   "reference_request": {
+    "metric": "revenue",
+    "group_by": "customer_state"
+   }
+  },
+  {
+   "question": "Which product categories had the lowest revenue?",
+   "expect": "answer",
+   "ground_truth_sql": "SELECT category_reporting, items_price_total FROM analytics.category_performance ORDER BY items_price_total ASC LIMIT 10",
+   "expected_rows": [
+    {
+     "category_reporting": "security_and_services",
+     "items_price_total": 283.29
+    },
+    {
+     "category_reporting": "fashion_childrens_clothes",
+     "items_price_total": 569.85
+    },
+    {
+     "category_reporting": "cds_dvds_musicals",
+     "items_price_total": 730.0
+    },
+    {
+     "category_reporting": "home_comfort_2",
+     "items_price_total": 760.27
+    },
+    {
+     "category_reporting": "flowers",
+     "items_price_total": 1110.04
+    },
+    {
+     "category_reporting": "pc_gamer",
+     "items_price_total": 1545.95
+    },
+    {
+     "category_reporting": "diapers_and_hygiene",
+     "items_price_total": 1567.59
+    },
+    {
+     "category_reporting": "arts_and_craftmanship",
+     "items_price_total": 1814.01
+    },
+    {
+     "category_reporting": "la_cuisine",
+     "items_price_total": 2054.99
+    },
+    {
+     "category_reporting": "fashion_sport",
+     "items_price_total": 2119.51
+    }
+   ],
+   "reference_request": {
+    "metric": "revenue",
+    "group_by": "category"
+   }
+  },
+  {
+   "question": "How many orders were placed in each month of 2017?",
+   "expect": "answer",
+   "ground_truth_sql": "SELECT year_month, SUM(n_orders) AS orders FROM analytics.sales_daily WHERE year = 2017 AND in_candidate_window GROUP BY year_month ORDER BY year_month",
+   "expected_rows": [
+    {
+     "year_month": "2017-01",
+     "orders": 800.0
+    },
+    {
+     "year_month": "2017-02",
+     "orders": 1780.0
+    },
+    {
+     "year_month": "2017-03",
+     "orders": 2682.0
+    },
+    {
+     "year_month": "2017-04",
+     "orders": 2404.0
+    },
+    {
+     "year_month": "2017-05",
+     "orders": 3700.0
+    },
+    {
+     "year_month": "2017-06",
+     "orders": 3245.0
+    },
+    {
+     "year_month": "2017-07",
+     "orders": 4026.0
+    },
+    {
+     "year_month": "2017-08",
+     "orders": 4331.0
+    },
+    {
+     "year_month": "2017-09",
+     "orders": 4285.0
+    },
+    {
+     "year_month": "2017-10",
+     "orders": 4631.0
+    }
+   ],
+   "reference_request": {
+    "metric": "orders",
+    "group_by": "month"
+   }
+  },
+  {
+   "question": "Which customer states have the longest average delivery time?",
+   "expect": "answer",
+   "ground_truth_sql": "SELECT customer_state_std, avg_purchase_to_delivery_days FROM analytics.delivery_by_state ORDER BY avg_purchase_to_delivery_days DESC LIMIT 5",
+   "expected_rows": [
+    {
+     "customer_state_std": "RR",
+     "avg_purchase_to_delivery_days": 29.39
+    },
+    {
+     "customer_state_std": "AP",
+     "avg_purchase_to_delivery_days": 27.19
+    },
+    {
+     "customer_state_std": "AM",
+     "avg_purchase_to_delivery_days": 26.43
+    },
+    {
+     "customer_state_std": "AL",
+     "avg_purchase_to_delivery_days": 24.54
+    },
+    {
+     "customer_state_std": "PA",
+     "avg_purchase_to_delivery_days": 23.77
+    }
+   ],
+   "reference_request": {
+    "metric": "average_delivery_days",
+    "group_by": "customer_state"
+   }
+  },
+  {
+   "question": "What was the total freight cost in 2018?",
+   "expect": "answer",
+   "ground_truth_sql": "SELECT ROUND(SUM(items_freight_total), 2) AS freight FROM analytics.sales_daily WHERE year = 2018",
+   "expected_rows": [
+    {
+     "freight": 1257646.8
+    }
+   ],
+   "reference_request": {
+    "metric": "freight",
+    "group_by": null
+   }
+  },
+  {
+   "question": "What share of revenue comes from each seller state?",
+   "expect": "answer",
+   "ground_truth_sql": "SELECT seller_state_std, ROUND(100 * SUM(items_price_total) / SUM(SUM(items_price_total)) OVER (), 2) AS share_pct FROM analytics.seller_performance GROUP BY 1 ORDER BY 2 DESC LIMIT 5",
+   "expected_rows": [
+    {
+     "seller_state_std": "SP",
+     "share_pct": 64.4
+    },
+    {
+     "seller_state_std": "PR",
+     "share_pct": 9.28
+    },
+    {
+     "seller_state_std": "MG",
+     "share_pct": 7.44
+    },
+    {
+     "seller_state_std": "RJ",
+     "share_pct": 6.21
+    },
+    {
+     "seller_state_std": "SC",
+     "share_pct": 4.65
+    }
+   ],
+   "reference_request": {
+    "metric": "revenue",
+    "group_by": "seller_state"
+   }
+  },
+  {
+   "question": "What is the average order value by customer state?",
+   "expect": "answer",
+   "ground_truth_sql": "SELECT customer_state_std, ROUND(AVG(items_price_total), 2) AS avg_order_value FROM warehouse.fact_orders WHERE has_items GROUP BY 1 ORDER BY 2 DESC LIMIT 5",
+   "expected_rows": [
+    {
+     "customer_state_std": "PB",
+     "avg_order_value": 216.67
+    },
+    {
+     "customer_state_std": "AP",
+     "avg_order_value": 198.15
+    },
+    {
+     "customer_state_std": "AC",
+     "avg_order_value": 197.32
+    },
+    {
+     "customer_state_std": "AL",
+     "avg_order_value": 195.41
+    },
+    {
+     "customer_state_std": "RO",
+     "avg_order_value": 186.8
+    }
+   ],
+   "reference_request": {
+    "metric": "average_order_value",
+    "group_by": "customer_state"
+   }
+  },
+  {
+   "question": "What was the average review score of orders purchased in each month of 2018?",
+   "expect": "answer",
+   "ground_truth_sql": "SELECT to_char(purchase_date, 'YYYY-MM') AS month, ROUND(AVG(review_score), 3) AS avg_score FROM warehouse.fact_reviews WHERE in_candidate_window AND purchase_date >= DATE '2018-01-01' AND purchase_date < DATE '2019-01-01' GROUP BY 1 ORDER BY 1",
+   "expected_rows": [
+    {
+     "month": "2018-01",
+     "avg_score": 4.041
+    },
+    {
+     "month": "2018-02",
+     "avg_score": 3.829
+    },
+    {
+     "month": "2018-03",
+     "avg_score": 3.752
+    },
+    {
+     "month": "2018-04",
+     "avg_score": 4.162
+    },
+    {
+     "month": "2018-05",
+     "avg_score": 4.194
+    },
+    {
+     "month": "2018-06",
+     "avg_score": 4.278
+    },
+    {
+     "month": "2018-07",
+     "avg_score": 4.264
+    },
+    {
+     "month": "2018-08",
+     "avg_score": 4.256
+    }
+   ],
+   "reference_request": {
+    "metric": "average_review_score",
+    "group_by": "month"
+   }
+  },
+  {
+   "question": "Why do customers prefer credit cards?",
+   "expect": "refuse",
+   "reason": "Must be refused: causes, forecasts, data the database does not contain, or relative periods."
+  },
+  {
+   "question": "What will revenue be in 2019?",
+   "expect": "refuse",
+   "reason": "Must be refused: causes, forecasts, data the database does not contain, or relative periods."
+  },
+  {
+   "question": "Which marketing channel brought the most new customers?",
+   "expect": "refuse",
+   "reason": "Must be refused: causes, forecasts, data the database does not contain, or relative periods."
+  },
+  {
+   "question": "What was the revenue last quarter?",
+   "expect": "refuse",
+   "reason": "Must be refused: causes, forecasts, data the database does not contain, or relative periods."
+  }
+ ]
+}

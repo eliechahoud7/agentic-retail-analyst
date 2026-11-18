@@ -1,0 +1,502 @@
+{
+ "description": "Independent question set: written as a business manager would ask, covering all areas, then classified. NOT fully independent: written by the developer who designed the catalog (see method). expect=answer: ground truth from hand-written SQL using the question's natural meaning; expect=refuse: kind 'gap' (data exists but the catalog cannot answer) or 'impossible' (no such data, causes, forecasts).",
+ "method": "Questions drafted per business area as a manager would phrase them, then classified. Deliberately includes wording that is not in the catalog's term lists and traps where a plausible-looking answer is wrong. Add your own questions in the same format to make the set more independent.",
+ "questions": [
+  {
+   "question": "Which month in 2017 had the highest sales?",
+   "area": "sales",
+   "expect": "answer",
+   "kind": "in_scope",
+   "note": "Sales = item revenue; months within the reliable window.",
+   "ground_truth_sql": "SELECT year_month, ROUND(SUM(items_price_total), 2) AS revenue FROM analytics.sales_daily WHERE year = 2017 AND in_candidate_window GROUP BY 1 ORDER BY 2 DESC LIMIT 3",
+   "expected_rows": [
+    {
+     "year_month": "2017-11",
+     "revenue": 1010271.37
+    },
+    {
+     "year_month": "2017-12",
+     "revenue": 743914.17
+    },
+    {
+     "year_month": "2017-10",
+     "revenue": 664219.43
+    }
+   ]
+  },
+  {
+   "question": "What was our total turnover in 2017?",
+   "area": "sales",
+   "expect": "answer",
+   "kind": "in_scope",
+   "note": "Turnover = item revenue for the whole year.",
+   "ground_truth_sql": "SELECT ROUND(SUM(items_price_total), 2) AS revenue FROM analytics.sales_daily WHERE year = 2017",
+   "expected_rows": [
+    {
+     "revenue": 6155806.98
+    }
+   ]
+  },
+  {
+   "question": "How much did we sell in the state of Sao Paulo?",
+   "area": "sales",
+   "expect": "refuse",
+   "kind": "gap",
+   "note": "Needs a filter on one state; the catalog groups but cannot filter by value."
+  },
+  {
+   "question": "Which states buy the most products?",
+   "area": "sales",
+   "expect": "answer",
+   "kind": "unusual_wording",
+   "note": "Units bought by customer state; 'products' is not a listed term.",
+   "ground_truth_sql": "SELECT o.customer_state_std, SUM(l.quantity) AS units FROM warehouse.fact_order_lines l JOIN warehouse.fact_orders o ON o.order_id = l.order_id GROUP BY 1 ORDER BY 2 DESC LIMIT 3",
+   "expected_rows": [
+    {
+     "customer_state_std": "SP",
+     "units": 47449
+    },
+    {
+     "customer_state_std": "RJ",
+     "units": 14579
+    },
+    {
+     "customer_state_std": "MG",
+     "units": 13129
+    }
+   ]
+  },
+  {
+   "question": "What were the takings by product category?",
+   "area": "sales",
+   "expect": "answer",
+   "kind": "unusual_wording",
+   "note": "'Takings' = revenue; not a listed term.",
+   "ground_truth_sql": "SELECT category_reporting, items_price_total FROM analytics.category_performance ORDER BY 2 DESC LIMIT 5",
+   "expected_rows": [
+    {
+     "category_reporting": "health_beauty",
+     "items_price_total": 1258681.34
+    },
+    {
+     "category_reporting": "watches_gifts",
+     "items_price_total": 1205005.68
+    },
+    {
+     "category_reporting": "bed_bath_table",
+     "items_price_total": 1036988.68
+    },
+    {
+     "category_reporting": "sports_leisure",
+     "items_price_total": 988048.97
+    },
+    {
+     "category_reporting": "computers_accessories",
+     "items_price_total": 911954.32
+    }
+   ]
+  },
+  {
+   "question": "Show me the revenue trend for 2018.",
+   "area": "sales",
+   "expect": "answer",
+   "kind": "in_scope",
+   "note": "Monthly revenue in 2018 (reliable window).",
+   "ground_truth_sql": "SELECT year_month, ROUND(SUM(items_price_total), 2) AS revenue FROM analytics.sales_daily WHERE year = 2018 AND in_candidate_window GROUP BY 1 ORDER BY 1",
+   "expected_rows": [
+    {
+     "year_month": "2018-01",
+     "revenue": 950030.36
+    },
+    {
+     "year_month": "2018-02",
+     "revenue": 844178.71
+    },
+    {
+     "year_month": "2018-03",
+     "revenue": 983213.44
+    },
+    {
+     "year_month": "2018-04",
+     "revenue": 996647.75
+    },
+    {
+     "year_month": "2018-05",
+     "revenue": 996517.68
+    },
+    {
+     "year_month": "2018-06",
+     "revenue": 865124.31
+    },
+    {
+     "year_month": "2018-07",
+     "revenue": 895507.22
+    },
+    {
+     "year_month": "2018-08",
+     "revenue": 854686.33
+    }
+   ]
+  },
+  {
+   "question": "Which category earns the least?",
+   "area": "sales",
+   "expect": "answer",
+   "kind": "unusual_wording",
+   "note": "'Earns' = revenue; lowest first.",
+   "ground_truth_sql": "SELECT category_reporting, items_price_total FROM analytics.category_performance ORDER BY 2 ASC LIMIT 3",
+   "expected_rows": [
+    {
+     "category_reporting": "security_and_services",
+     "items_price_total": 283.29
+    },
+    {
+     "category_reporting": "fashion_childrens_clothes",
+     "items_price_total": 569.85
+    },
+    {
+     "category_reporting": "cds_dvds_musicals",
+     "items_price_total": 730.0
+    }
+   ]
+  },
+  {
+   "question": "How many unique customers did we have in 2018?",
+   "area": "customers",
+   "expect": "answer",
+   "kind": "in_scope",
+   "note": "Distinct customers with an order purchased in 2018.",
+   "ground_truth_sql": "SELECT COUNT(DISTINCT customer_unique_id) AS customers FROM warehouse.fact_orders WHERE purchase_date >= DATE '2018-01-01' AND purchase_date < DATE '2019-01-01'",
+   "expected_rows": [
+    {
+     "customers": 52749
+    }
+   ]
+  },
+  {
+   "question": "Which states have the most customers?",
+   "area": "customers",
+   "expect": "answer",
+   "kind": "in_scope",
+   "note": "Distinct customers per customer state.",
+   "ground_truth_sql": "SELECT customer_state_std, COUNT(DISTINCT customer_unique_id) AS customers FROM warehouse.fact_orders GROUP BY 1 ORDER BY 2 DESC LIMIT 3",
+   "expected_rows": [
+    {
+     "customer_state_std": "SP",
+     "customers": 40302
+    },
+    {
+     "customer_state_std": "RJ",
+     "customers": 12384
+    },
+    {
+     "customer_state_std": "MG",
+     "customers": 11259
+    }
+   ]
+  },
+  {
+   "question": "What share of customers come back for a second purchase?",
+   "area": "customers",
+   "expect": "refuse",
+   "kind": "gap",
+   "note": "Repeat-customer rate exists in the data (is_repeat_customer) but not in the catalog."
+  },
+  {
+   "question": "How many new customers did we acquire each month in 2017?",
+   "area": "customers",
+   "expect": "answer",
+   "kind": "trap",
+   "note": "NEW customers = first purchase in that month (cohort size). Counting all active customers per month would be wrong.",
+   "ground_truth_sql": "SELECT cohort_month, COUNT(*) AS new_customers FROM warehouse.dim_customers WHERE cohort_month LIKE '2017-%' GROUP BY 1 ORDER BY 1",
+   "expected_rows": [
+    {
+     "cohort_month": "2017-01",
+     "new_customers": 764
+    },
+    {
+     "cohort_month": "2017-02",
+     "new_customers": 1752
+    },
+    {
+     "cohort_month": "2017-03",
+     "new_customers": 2636
+    },
+    {
+     "cohort_month": "2017-04",
+     "new_customers": 2352
+    },
+    {
+     "cohort_month": "2017-05",
+     "new_customers": 3596
+    },
+    {
+     "cohort_month": "2017-06",
+     "new_customers": 3139
+    },
+    {
+     "cohort_month": "2017-07",
+     "new_customers": 3894
+    },
+    {
+     "cohort_month": "2017-08",
+     "new_customers": 4184
+    },
+    {
+     "cohort_month": "2017-09",
+     "new_customers": 4130
+    },
+    {
+     "cohort_month": "2017-10",
+     "new_customers": 4470
+    },
+    {
+     "cohort_month": "2017-11",
+     "new_customers": 7304
+    },
+    {
+     "cohort_month": "2017-12",
+     "new_customers": 5487
+    }
+   ]
+  },
+  {
+   "question": "How many orders were cancelled?",
+   "area": "operations",
+   "expect": "refuse",
+   "kind": "gap",
+   "note": "Cancelled orders (625) exist in the data, but the catalog has no status filter. Answering with all orders would be wrong."
+  },
+  {
+   "question": "What is the average delivery time in days?",
+   "area": "operations",
+   "expect": "answer",
+   "kind": "in_scope",
+   "note": "Average purchase-to-delivery days over delivered orders with a delivery date.",
+   "ground_truth_sql": "SELECT ROUND(AVG(purchase_to_delivery_days)::numeric, 2) AS days FROM warehouse.fact_orders WHERE order_status = 'delivered' AND order_delivered_customer_date IS NOT NULL",
+   "expected_rows": [
+    {
+     "days": 12.56
+    }
+   ]
+  },
+  {
+   "question": "Which states wait the longest for their deliveries?",
+   "area": "operations",
+   "expect": "answer",
+   "kind": "unusual_wording",
+   "note": "Average delivery days per customer state; wording not in the term lists.",
+   "ground_truth_sql": "SELECT customer_state_std, avg_purchase_to_delivery_days FROM analytics.delivery_by_state ORDER BY 2 DESC LIMIT 3",
+   "expected_rows": [
+    {
+     "customer_state_std": "RR",
+     "avg_purchase_to_delivery_days": 29.39
+    },
+    {
+     "customer_state_std": "AP",
+     "avg_purchase_to_delivery_days": 27.19
+    },
+    {
+     "customer_state_std": "AM",
+     "avg_purchase_to_delivery_days": 26.43
+    }
+   ]
+  },
+  {
+   "question": "In which month of 2018 were deliveries most often late?",
+   "area": "operations",
+   "expect": "answer",
+   "kind": "in_scope",
+   "note": "Late delivery rate per purchase month in 2018.",
+   "ground_truth_sql": "SELECT purchase_year_month, late_rate FROM analytics.delivery_monthly WHERE purchase_year_month BETWEEN '2018-01' AND '2018-08' ORDER BY 2 DESC LIMIT 3",
+   "expected_rows": [
+    {
+     "purchase_year_month": "2018-03",
+     "late_rate": 0.1896
+    },
+    {
+     "purchase_year_month": "2018-02",
+     "late_rate": 0.1413
+    },
+    {
+     "purchase_year_month": "2018-05",
+     "late_rate": 0.0656
+    }
+   ]
+  },
+  {
+   "question": "Do late deliveries hurt customer ratings?",
+   "area": "reviews",
+   "expect": "answer",
+   "kind": "in_scope",
+   "note": "Average review score for late vs on-time deliveries.",
+   "ground_truth_sql": "SELECT CASE WHEN o.is_late THEN 'late' ELSE 'on_time' END AS delivery_status, ROUND(AVG(r.review_score), 3) AS score FROM warehouse.fact_reviews r JOIN warehouse.fact_orders o ON o.order_id = r.order_id WHERE o.order_status = 'delivered' AND o.order_delivered_customer_date IS NOT NULL GROUP BY 1 ORDER BY 1",
+   "expected_rows": [
+    {
+     "delivery_status": "late",
+     "score": 2.271
+    },
+    {
+     "delivery_status": "on_time",
+     "score": 4.29
+    }
+   ]
+  },
+  {
+   "question": "How often are orders delivered after the promised date?",
+   "area": "operations",
+   "expect": "answer",
+   "kind": "unusual_wording",
+   "note": "Overall late delivery rate; wording not in the term lists.",
+   "ground_truth_sql": "SELECT ROUND(COUNT(*) FILTER (WHERE is_late)::numeric / COUNT(*), 4) AS late_rate FROM warehouse.fact_orders WHERE order_status = 'delivered' AND order_delivered_customer_date IS NOT NULL",
+   "expected_rows": [
+    {
+     "late_rate": 0.0677
+    }
+   ]
+  },
+  {
+   "question": "What is the most popular payment method?",
+   "area": "payments",
+   "expect": "answer",
+   "kind": "trap",
+   "note": "Popularity = number of payments; ranking by payment VALUE answers a different measure.",
+   "ground_truth_sql": "SELECT payment_type, COUNT(*) AS payments FROM warehouse.fact_payments GROUP BY 1 ORDER BY 2 DESC LIMIT 2",
+   "expected_rows": [
+    {
+     "payment_type": "credit_card",
+     "payments": 76795
+    },
+    {
+     "payment_type": "boleto",
+     "payments": 19784
+    }
+   ]
+  },
+  {
+   "question": "How much did customers pay in total with vouchers?",
+   "area": "payments",
+   "expect": "refuse",
+   "kind": "gap",
+   "note": "Needs a filter on one payment type."
+  },
+  {
+   "question": "What is the average number of installments for credit card payments?",
+   "area": "payments",
+   "expect": "refuse",
+   "kind": "gap",
+   "note": "Installments are in the data but not in the catalog."
+  },
+  {
+   "question": "What's the average customer rating?",
+   "area": "reviews",
+   "expect": "answer",
+   "kind": "in_scope",
+   "note": "Average review score over all reviews.",
+   "ground_truth_sql": "SELECT ROUND(AVG(review_score), 3) AS score FROM warehouse.fact_reviews",
+   "expected_rows": [
+    {
+     "score": 4.086
+    }
+   ]
+  },
+  {
+   "question": "Which month of 2017 had the worst reviews?",
+   "area": "reviews",
+   "expect": "answer",
+   "kind": "trap",
+   "note": "Lowest average score first; a list led by the best month would be wrong.",
+   "ground_truth_sql": "SELECT to_char(purchase_date, 'YYYY-MM') AS month, ROUND(AVG(review_score), 3) AS score FROM warehouse.fact_reviews WHERE in_candidate_window AND purchase_date >= DATE '2017-01-01' AND purchase_date < DATE '2018-01-01' GROUP BY 1 ORDER BY 2 ASC LIMIT 3",
+   "expected_rows": [
+    {
+     "month": "2017-11",
+     "score": 3.911
+    },
+    {
+     "month": "2017-02",
+     "score": 4.017
+    },
+    {
+     "month": "2017-12",
+     "score": 4.02
+    }
+   ]
+  },
+  {
+   "question": "How many reviews did we receive in 2018?",
+   "area": "reviews",
+   "expect": "answer",
+   "kind": "trap",
+   "note": "Received = review creation date in 2018 (the catalog counts reviews by purchase date).",
+   "ground_truth_sql": "SELECT COUNT(*) AS reviews FROM warehouse.fact_reviews WHERE review_creation_date >= TIMESTAMP '2018-01-01' AND review_creation_date < TIMESTAMP '2019-01-01'",
+   "expected_rows": [
+    {
+     "reviews": 56164
+    }
+   ]
+  },
+  {
+   "question": "What is our profit margin by category?",
+   "area": "finance",
+   "expect": "refuse",
+   "kind": "impossible",
+   "note": "No cost data: profit cannot be computed."
+  },
+  {
+   "question": "Which marketing campaign drove the most sales in 2018?",
+   "area": "marketing",
+   "expect": "refuse",
+   "kind": "impossible",
+   "note": "No marketing data."
+  },
+  {
+   "question": "How many products do we currently have in stock?",
+   "area": "inventory",
+   "expect": "refuse",
+   "kind": "impossible",
+   "note": "No inventory data."
+  },
+  {
+   "question": "What will sales look like next quarter?",
+   "area": "forecast",
+   "expect": "refuse",
+   "kind": "impossible",
+   "note": "Forecast."
+  },
+  {
+   "question": "Why did revenue drop in June 2018?",
+   "area": "causes",
+   "expect": "refuse",
+   "kind": "impossible",
+   "note": "Causes cannot be determined from the data."
+  },
+  {
+   "question": "Who are our top 10 customers by spend?",
+   "area": "customers",
+   "expect": "refuse",
+   "kind": "gap",
+   "note": "Individual customers are in the data but not in the catalog."
+  },
+  {
+   "question": "Which sellers generate the most revenue?",
+   "area": "sellers",
+   "expect": "refuse",
+   "kind": "gap",
+   "note": "Individual sellers (not seller states) are not in the catalog."
+  },
+  {
+   "question": "What was the revenue in Rio de Janeiro in 2017?",
+   "area": "sales",
+   "expect": "refuse",
+   "kind": "gap",
+   "note": "Needs a filter on one state. Answering with total 2017 revenue would be wrong."
+  },
+  {
+   "question": "Which product sold the most units?",
+   "area": "products",
+   "expect": "refuse",
+   "kind": "gap",
+   "note": "Individual products are not in the catalog."
+  }
+ ]
+}

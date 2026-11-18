@@ -1,0 +1,406 @@
+{
+ "models": {
+  "supervisor": "qwen2.5:1.5b",
+  "data_analyst": "qwen2.5:1.5b",
+  "analytics": "qwen2.5:1.5b"
+ },
+ "summary": {
+  "correct": 13,
+  "wrong": 0,
+  "safe_failure": 0,
+  "correct_refusal": 4,
+  "wrongly_answered": 0
+ },
+ "by_kind": {
+  "-": {
+   "correct": 13,
+   "correct_refusal": 4
+  }
+ },
+ "ollama_ps": "NAME            ID              SIZE      PROCESSOR          CONTEXT    RUNNER      UNTIL              \nqwen2.5:1.5b    65ec06548149    1.1 GB    24%/76% CPU/GPU    4096       llamacpp    4 minutes from now",
+ "gpu": "844 MiB, 2048 MiB",
+ "results": [
+  {
+   "n": 1,
+   "question": "What are the top 5 product categories by sales revenue?",
+   "expect": "answer",
+   "kind": "",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 10.9,
+   "status": "answered",
+   "reference_request": {
+    "metric": "revenue",
+    "group_by": "category"
+   },
+   "agent_requests": [
+    {
+     "metric": "revenue",
+     "group_by": "category"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Top 5 Product Categories by Revenue\n\nHealth & Beauty has the highest revenue (R$ 1,258,681), followed by Watches & Gifts (R$ 1,205,006) and Bed, Bath & Table (R$ 1,036,989).\n\n| Rank | Category | Revenue |\n|---:|---|---:|\n| 1 | Health & Beauty | R$ 1,258,681 |\n| 2 | Watches & Gifts | R$ 1,205,006 |\n| 3 | Bed, Bath & Table | R$ 1,036,989 |\n| 4 | Sports & Leisure | R$ 988,049 |\n| 5 | Computers & Accessories | R$ 911,954 |"
+  },
+  {
+   "n": 2,
+   "question": "How did monthly sales revenue grow during 2018?",
+   "expect": "answer",
+   "kind": "",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 0.7,
+   "status": "answered",
+   "reference_request": {
+    "metric": "revenue",
+    "group_by": "month"
+   },
+   "agent_requests": [
+    {
+     "metric": "revenue",
+     "group_by": "month"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Monthly Revenue Growth in 2018\n\nRevenue went from R$ 950,030 in January 2018 to R$ 854,686 in August 2018, a change of -10.0%. The largest increase was in March 2018 (+16.47%) and the largest decrease was in June 2018 (-13.19%).\n\n| Month | Revenue | Change | Growth |\n|---|---:|---:|---:|\n| 2018-01 | R$ 950,030 | \u2013 | \u2013 |\n| 2018-02 | R$ 844,179 | R$ -105,852 | -11.14% |\n| 2018-03 | R$ 983,213 | R$ 139,035 | 16.47% |\n| 2018-04 | R$ 996,648 | R$ 13,434 | 1.37% |\n| 2018-05 | R$ 996,518 | R$ -130.07 | -0.01% |\n| 2018-06 | R$ 865,124 | R$ -131,393 | -13.19% |\n| 2018-07 | R$ 895,507 | R$ 30,383 | 3.51% |\n| 2018-08 | R$ 854,686 | R$ -40,821 | -4.56% |"
+  },
+  {
+   "n": 3,
+   "question": "Which customer states have the highest late delivery rate?",
+   "expect": "answer",
+   "kind": "",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 0.8,
+   "status": "answered",
+   "reference_request": {
+    "metric": "late_delivery_rate",
+    "group_by": "customer_state"
+   },
+   "agent_requests": [
+    {
+     "metric": "late_delivery_rate",
+     "group_by": "customer_state"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Top 10 Customer States by Late Delivery Rate\n\nAL has the highest late delivery rate (21.41%), followed by MA (17.43%) and SE (15.22%).\n\n| Rank | State | Late delivery rate |\n|---:|---|---:|\n| 1 | AL | 21.41% |\n| 2 | MA | 17.43% |\n| 3 | SE | 15.22% |\n| 4 | PI | 13.87% |\n| 5 | CE | 13.76% |\n| 6 | RR | 12.20% |\n| 7 | BA | 12.16% |\n| 8 | RJ | 12.11% |\n| 9 | PA | 11.21% |\n| 10 | ES | 10.73% |"
+  },
+  {
+   "n": 4,
+   "question": "What share of payment value comes from each payment type?",
+   "expect": "answer",
+   "kind": "",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 1.4,
+   "status": "answered",
+   "reference_request": {
+    "metric": "payment_value",
+    "group_by": "payment_type"
+   },
+   "agent_requests": [
+    {
+     "metric": "payment_value",
+     "group_by": null
+    },
+    {
+     "metric": "payment_value",
+     "group_by": "payment_type"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Share of Payment Value by Payment Method\n\nCredit Card accounts for the largest share of payment value: 78.34% (R$ 12,542,084), followed by Boleto (17.92%) and Voucher (2.37%). Together, these three account for 98.63% of the total.\n\n| Payment type | Payment value | Share |\n|---|---:|---:|\n| Credit Card | R$ 12,542,084 | 78.34% |\n| Boleto | R$ 2,869,361 | 17.92% |\n| Voucher | R$ 379,437 | 2.37% |\n| Debit Card | R$ 217,990 | 1.36% |\n| Not Defined | R$ 0.00 | 0.00% |"
+  },
+  {
+   "n": 5,
+   "question": "Is there a relationship between delivery delays and review scores?",
+   "expect": "answer",
+   "kind": "",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 0.8,
+   "status": "answered",
+   "reference_request": {
+    "metric": "average_review_score",
+    "group_by": "delivery_status"
+   },
+   "agent_requests": [
+    {
+     "metric": "average_review_score",
+     "group_by": "delivery_status"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Average Review Score by Delivery Status\n\nThe average review score is 4.29 for On-time deliveries, compared with 2.27 for Late deliveries.\n\n| Delivery | Average review score |\n|---|---:|\n| On-time deliveries | 4.29 |\n| Late deliveries | 2.27 |"
+  },
+  {
+   "n": 6,
+   "question": "Which 3 customer states generated the most revenue in 2017?",
+   "expect": "answer",
+   "kind": "",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 0.8,
+   "status": "answered",
+   "reference_request": {
+    "metric": "revenue",
+    "group_by": "customer_state"
+   },
+   "agent_requests": [
+    {
+     "metric": "revenue",
+     "group_by": "customer_state"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Top 3 Customer States by Revenue in 2017\n\nSP has the highest revenue (R$ 2,212,487), followed by RJ (R$ 906,200) and MG (R$ 723,229).\n\n| Rank | State | Revenue |\n|---:|---|---:|\n| 1 | SP | R$ 2,212,487 |\n| 2 | RJ | R$ 906,200 |\n| 3 | MG | R$ 723,229 |"
+  },
+  {
+   "n": 7,
+   "question": "Which product categories had the lowest revenue?",
+   "expect": "answer",
+   "kind": "",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 0.6,
+   "status": "answered",
+   "reference_request": {
+    "metric": "revenue",
+    "group_by": "category"
+   },
+   "agent_requests": [
+    {
+     "metric": "revenue",
+     "group_by": "category"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Bottom 10 Product Categories by Revenue\n\nSecurity & Services has the lowest revenue (R$ 283.29), followed by Fashion: Children's Clothes (R$ 569.85) and CDs, DVDs & Musicals (R$ 730.00).\n\n| Rank | Category | Revenue |\n|---:|---|---:|\n| 1 | Security & Services | R$ 283.29 |\n| 2 | Fashion: Children's Clothes | R$ 569.85 |\n| 3 | CDs, DVDs & Musicals | R$ 730.00 |\n| 4 | Home Comfort 2 | R$ 760.27 |\n| 5 | Flowers | R$ 1,110 |\n| 6 | PC Gamer | R$ 1,546 |\n| 7 | Diapers & Hygiene | R$ 1,568 |\n| 8 | Arts & Craftmanship | R$ 1,814 |\n| 9 | La Cuisine | R$ 2,055 |\n| 10 | Fashion: Sport | R$ 2,120 |"
+  },
+  {
+   "n": 8,
+   "question": "How many orders were placed in each month of 2017?",
+   "expect": "answer",
+   "kind": "",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 0.8,
+   "status": "answered",
+   "reference_request": {
+    "metric": "orders",
+    "group_by": "month"
+   },
+   "agent_requests": [
+    {
+     "metric": "orders",
+     "group_by": "month"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Number of Orders by Month in 2017\n\nNumber of orders was highest in November 2017 (7,544) and lowest in January 2017 (800).\n\n| Month | Orders |\n|---|---:|\n| 2017-01 | 800 |\n| 2017-02 | 1,780 |\n| 2017-03 | 2,682 |\n| 2017-04 | 2,404 |\n| 2017-05 | 3,700 |\n| 2017-06 | 3,245 |\n| 2017-07 | 4,026 |\n| 2017-08 | 4,331 |\n| 2017-09 | 4,285 |\n| 2017-10 | 4,631 |\n| 2017-11 | 7,544 |\n| 2017-12 | 5,673 |"
+  },
+  {
+   "n": 9,
+   "question": "Which customer states have the longest average delivery time?",
+   "expect": "answer",
+   "kind": "",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 0.8,
+   "status": "answered",
+   "reference_request": {
+    "metric": "average_delivery_days",
+    "group_by": "customer_state"
+   },
+   "agent_requests": [
+    {
+     "metric": "average_delivery_days",
+     "group_by": "customer_state"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Top 10 Customer States by Average Delivery Time\n\nRR has the highest average delivery time (29.39 days), followed by AP (27.19 days) and AM (26.43 days).\n\n| Rank | State | Average delivery days |\n|---:|---|---:|\n| 1 | RR | 29.39 |\n| 2 | AP | 27.19 |\n| 3 | AM | 26.43 |\n| 4 | AL | 24.54 |\n| 5 | PA | 23.77 |\n| 6 | MA | 21.57 |\n| 7 | SE | 21.52 |\n| 8 | CE | 21.27 |\n| 9 | AC | 21.04 |\n| 10 | PB | 20.43 |"
+  },
+  {
+   "n": 10,
+   "question": "What was the total freight cost in 2018?",
+   "expect": "answer",
+   "kind": "",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 0.6,
+   "status": "answered",
+   "reference_request": {
+    "metric": "freight",
+    "group_by": null
+   },
+   "agent_requests": [
+    {
+     "metric": "freight",
+     "group_by": null
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Freight Cost in 2018\n\nThe freight cost in 2018 was R$ 1,257,647.\n\n| Freight |\n|---:|\n| R$ 1,257,647 |"
+  },
+  {
+   "n": 11,
+   "question": "What share of revenue comes from each seller state?",
+   "expect": "answer",
+   "kind": "",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 0.6,
+   "status": "answered",
+   "reference_request": {
+    "metric": "revenue",
+    "group_by": "seller_state"
+   },
+   "agent_requests": [
+    {
+     "metric": "revenue",
+     "group_by": "seller_state"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Share of Revenue by Seller State\n\nSP accounts for the largest share of revenue: 64.40% (R$ 8,753,396), followed by PR (9.28%) and MG (7.44%). Together, these three account for 81.12% of the total.\n\n| Seller state | Revenue | Share |\n|---|---:|---:|\n| SP | R$ 8,753,396 | 64.40% |\n| PR | R$ 1,261,887 | 9.28% |\n| MG | R$ 1,011,565 | 7.44% |\n| RJ | R$ 843,984 | 6.21% |\n| SC | R$ 632,426 | 4.65% |\n| RS | R$ 378,560 | 2.79% |\n| BA | R$ 285,562 | 2.10% |\n| DF | R$ 97,749 | 0.72% |\n| PE | R$ 91,494 | 0.67% |\n| GO | R$ 66,399 | 0.49% |\n| ES | R$ 47,690 | 0.35% |\n| MA | R$ 36,409 | 0.27% |\n| CE | R$ 20,241 | 0.15% |\n| PB | R$ 17,095 | 0.13% |\n| MT | R$ 17,071 | 0.13% |\n| RN | R$ 9,993 | 0.07% |\n| MS | R$ 8,552 | 0.06% |\n| RO | R$ 4,762 | 0.04% |\n| PI | R$ 2,522 | 0.02% |\n| SE | R$ 1,606 | 0.01% |\n\n*Showing the first 20 of 23 rows.*"
+  },
+  {
+   "n": 12,
+   "question": "What is the average order value by customer state?",
+   "expect": "answer",
+   "kind": "",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 0.7,
+   "status": "answered",
+   "reference_request": {
+    "metric": "average_order_value",
+    "group_by": "customer_state"
+   },
+   "agent_requests": [
+    {
+     "metric": "average_order_value",
+     "group_by": "customer_state"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Average Order Value by Customer State\n\nPB has the highest average order value (R$ 216.67) and SP the lowest (R$ 125.75).\n\n| State | Average order value |\n|---|---:|\n| PB | R$ 216.67 |\n| AP | R$ 198.15 |\n| AC | R$ 197.32 |\n| AL | R$ 195.41 |\n| RO | R$ 186.80 |\n| PA | R$ 184.48 |\n| TO | R$ 177.86 |\n| PI | R$ 176.30 |\n| MT | R$ 173.26 |\n| RN | R$ 172.27 |\n| CE | R$ 171.25 |\n| SE | R$ 170.79 |\n| RR | R$ 170.21 |\n| MS | R$ 164.76 |\n| MA | R$ 161.69 |\n| PE | R$ 159.46 |\n| BA | R$ 152.28 |\n| AM | R$ 152.09 |\n| GO | R$ 146.78 |\n| SC | R$ 144.12 |\n\n*Showing the first 20 of 27 rows.*"
+  },
+  {
+   "n": 13,
+   "question": "What was the average review score of orders purchased in each month of 2018?",
+   "expect": "answer",
+   "kind": "",
+   "outcome": "correct",
+   "detail": "matches ground truth",
+   "seconds": 0.8,
+   "status": "answered",
+   "reference_request": {
+    "metric": "average_review_score",
+    "group_by": "month"
+   },
+   "agent_requests": [
+    {
+     "metric": "average_review_score",
+     "group_by": "month"
+    }
+   ],
+   "issues": [],
+   "user_sees": "### Average Review Score by Month in 2018\n\nAverage review score was highest in June 2018 (4.28) and lowest in March 2018 (3.75).\n\n| Month | Average review score |\n|---|---:|\n| 2018-01 | 4.04 |\n| 2018-02 | 3.83 |\n| 2018-03 | 3.75 |\n| 2018-04 | 4.16 |\n| 2018-05 | 4.19 |\n| 2018-06 | 4.28 |\n| 2018-07 | 4.26 |\n| 2018-08 | 4.26 |"
+  },
+  {
+   "n": 14,
+   "question": "Why do customers prefer credit cards?",
+   "expect": "refuse",
+   "kind": "",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The data shows what happened, but not why it happened, so causes cannot be determined from it."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The data shows what happened, but not why it happened, so causes cannot be determined from it."
+  },
+  {
+   "n": 15,
+   "question": "What will revenue be in 2019?",
+   "expect": "refuse",
+   "kind": "",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The data only covers past orders (2016 to 2018), so it cannot be used to forecast future values."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The data only covers past orders (2016 to 2018), so it cannot be used to forecast future values."
+  },
+  {
+   "n": 16,
+   "question": "Which marketing channel brought the most new customers?",
+   "expect": "refuse",
+   "kind": "",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question depends on \"new customers\", but the supported metrics do not separate new and returning customers, so an answer would be misleading."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question depends on \"new customers\", but the supported metrics do not separate new and returning customers, so an answer would be misleading."
+  },
+  {
+   "n": 17,
+   "question": "What was the revenue last quarter?",
+   "expect": "refuse",
+   "kind": "",
+   "outcome": "correct_refusal",
+   "detail": "refused",
+   "seconds": 0.0,
+   "status": "refused_out_of_scope",
+   "reference_request": null,
+   "agent_requests": [],
+   "issues": [
+    {
+     "kind": "scope",
+     "message": "The question uses a relative period (\"last quarter\"). The data covers 2016 to 2018; please name the year, for example 2018."
+    },
+    {
+     "kind": "data",
+     "message": "No data could be retrieved for this question."
+    }
+   ],
+   "user_sees": "I can't answer this question reliably. The question uses a relative period (\"last quarter\"). The data covers 2016 to 2018; please name the year, for example 2018."
+  }
+ ]
+}
