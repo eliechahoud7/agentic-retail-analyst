@@ -150,23 +150,134 @@ agentic-retail-analyst/
 
 ## Setup and running
 
-Requires Python 3.12, PostgreSQL with the `retail_intelligence` database, and Ollama.
+All commands are for **Windows PowerShell**, run from the project root.
+
+### 1. Prerequisites
+
+| Software | Tested version |
+|---|---|
+| Windows | 11 |
+| Python | 3.12.10 |
+| PostgreSQL | 18 |
+| Ollama | 0.40.16, with `qwen2.5:1.5b` (about 1 GB) |
+
+**Tested hardware:** NVIDIA MX450 (2 GB) and 16 GB RAM. Other setups haven't been tested.
+
+### 2. Build the `retail_intelligence` database
+
+This project only **reads** an existing database. That database (raw Olist CSVs → validated warehouse → analytics views → dbt marts) is built by the companion project **[retail-intelligence](https://github.com/eliechahoud7/retail-intelligence)**.
+
+Follow its *Getting started* steps 1–5, **including dbt**. They cover downloading the [Olist dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) from Kaggle.
+- The login script below grants access to the `warehouse`, `analytics` and `dbt_marts` schemas, so all three must exist.
+- The tests and ground-truth queries also use the `analytics` views.
+
+Check the result as the PostgreSQL admin. `psql` is usually not on PATH, hence the full path:
 
 ```powershell
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-ollama pull qwen2.5:1.5b
-# As the PostgreSQL admin, once: create the read-only login, then set its password with \password
-#   psql -U postgres -d retail_intelligence -f sql\02_create_agent_role.sql
-copy .env.example .env           # fill in PGPASSWORD for retail_agent_ro (never commit .env)
-
-streamlit run app.py             # chat UI at http://localhost:8501
-python -m retail_analyst.graph "What share of payment value comes from each payment type?"   # CLI
-python -m unittest discover -s tests                                                          # tests
-python evaluation/run_benchmark.py <label>                                                    # benchmark (~10 min)
+$psql = "C:\Program Files\PostgreSQL\18\bin\psql.exe"
+& $psql -U postgres -d retail_intelligence -c "SELECT COUNT(*) FROM warehouse.fact_orders;"   # expect 99441
+& $psql -U postgres -d retail_intelligence -c "\dn"     # expect warehouse, analytics, dbt_marts
 ```
 
-The chat shows **only the business answer** (a heading, a factual summary and a results table) or a short
+### 3. Create the read-only login `retail_agent_ro`
+
+The script creates a login with `SELECT` on 20 business tables only, read-only sessions, a 30 s timeout and a 5-connection limit. It contains **no password**.
+
+```powershell
+& $psql -U postgres -d retail_intelligence -f sql\02_create_agent_role.sql
+& $psql -U postgres -d retail_intelligence    # then, at the psql prompt:
+#   \password retail_agent_ro                  (typed twice, not shown on screen)
+#   \q
+```
+
+### 4. Python environment
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1      # if scripts are blocked: Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+pip install -r requirements.txt
+```
+
+### 5. Configure `.env`
+
+```powershell
+Copy-Item .env.example .env
+notepad .env                      # set PGPASSWORD to the password chosen in step 3
+```
+
+- `.env` is git-ignored: **never commit it**. The other values (host, port, database, `PGUSER=retail_agent_ro`, Ollama URL and model) are already correct for a local setup.
+- **⚠ Variables already set in your shell take precedence over `.env`.** If `PGUSER` or `PGPASSWORD` is set (common when using `psql` as admin), the application would connect with those credentials instead of `retail_agent_ro`. Check with `Get-ChildItem Env:PG*` and clear them for the session:
+
+```powershell
+Remove-Item Env:PGUSER, Env:PGPASSWORD -ErrorAction SilentlyContinue
+```
+
+### 6. Ollama and the model
+
+1. Install Ollama from [ollama.com/download](https://ollama.com/download).
+2. Download the model:
+
+```powershell
+ollama pull qwen2.5:1.5b
+ollama list                       # qwen2.5:1.5b must be listed
+```
+
+- All three agents use `OLLAMA_MODEL`.
+- The optional `SUPERVISOR_MODEL`, `DATA_ANALYST_MODEL` and `ANALYTICS_MODEL` settings override it per agent. The evaluation results were all produced with `qwen2.5:1.5b`.
+
+### 7. Check the setup
+
+```powershell
+python -m retail_analyst.graph "What share of payment value comes from each payment type?"
+```
+
+- The command prints the agent trace and the answer. **Expected:** credit card 78.34%.
+- If settings are missing, the error lists their names.
+
+### 8. Run the app
+
+```powershell
+streamlit run app.py              # opens http://localhost:8501
+```
+
+If the database or the model can't be reached, the app shows an "unavailable" notice instead of answering.
+
+The chat shows **only the business answer** (a heading, a factual summary and a results table) or a short refusal with its reason.
+
+**For developers:**
+- Each question's diagnostics are written to the application log: outcome, timing, every check, and the full agent trace with requests and generated SQL.
+- The CLI (step 7) prints the same trace, with evidence and caveats.
+
+### 9. Tests
+
+```powershell
+python -m unittest discover -s tests
+```
+
+164 tests, about 20 s. **The database is required**; Ollama is not, because the model replies are scripted in the tests.
+
+### 10. Benchmark
+
+The benchmark needs both the database and Ollama.
+
+```powershell
+python evaluation/run_benchmark.py my_run_17q                               # benchmark.json (17 questions)
+python evaluation/run_benchmark.py my_run_32q independent_questions.json    # 32 questions
+python evaluation/run_benchmark.py my_run_49q fresh_questions.json          # 49 questions
+```
+
+- **Output:** results go to `evaluation/results/<label>.json` and `.txt`.
+- **Labels:** **use a new label**, because an existing label is overwritten. A label with a folder (`my_run/results`) needs that folder to exist first.
+- **Runtime:** each set took 12–25 s on the tested hardware.
+
+### Troubleshooting
+
+| Symptom | Cause |
+|---|---|
+| `Missing settings in .env: …` | `.env` is missing or incomplete (step 5) |
+| "Unavailable" notice in the app | PostgreSQL isn't running, the password is wrong, Ollama isn't running, or the model hasn't been downloaded |
+| `psql` not recognised | Use the full path (step 2) |
+| Login script fails with `schema "dbt_marts" does not exist` | The dbt step of the database build is missing (step 2) | **only the business answer** (a heading, a factual summary and a results table) or a short
 refusal with its reason. **For developers,** each question's diagnostics are written to the application log:
 outcome, timing, every check and the full agent trace with requests and generated SQL. The CLI prints the
 same trace, with evidence and caveats.
