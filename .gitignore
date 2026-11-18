@@ -3,8 +3,6 @@ __pycache__/
 *.pyc
 .env
 .streamlit/secrets.toml
-data/*
-!data/.gitkeep
 
 # Local secrets and environment files (the template is published)
 .env.*
