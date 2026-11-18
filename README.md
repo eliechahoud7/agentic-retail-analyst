@@ -16,6 +16,59 @@ data. Everything runs locally on a laptop with a 2 GB GPU, using **Qwen 2.5 1.5B
 > - **No independent validation:** all three question sets were used during development.
 > - **Not production-ready:** it does not do general-purpose SQL reasoning.
 
+## Motivation
+
+A small local model (Qwen 2.5 1.5B, running on a 2 GB GPU) is cheap and private, but it can't be trusted to write SQL against a 20-table warehouse or to describe the results. In early versions of this project it chose wrong tables and columns, and its written summaries contained false superlatives. The result was plausible-looking but unreliable answers (see Development history).
+
+This project therefore limits what the model decides:
+- **The model makes only constrained choices:** which catalog metric and grouping fit the question, and, occasionally, which agent runs next.
+- **Deterministic code does the rest:** it reads years, "top N" and the type of calculation from the question, compiles the SQL from verified metric definitions, validates it, and runs it through a read-only login. It also performs the analysis and writes the answer text from the returned rows.
+- **Safe refusal is a deliberate outcome, not a failure:** when a question falls outside what the catalog can express, the system says so and explains why, rather than answering a different question.
+
+## What you can ask
+
+The assistant is **intentionally scoped**: it answers questions that map to one metric of its catalog, optionally grouped one way. It does not support arbitrary analytical questions.
+
+| Metric | Meaning | Can be grouped by |
+|---|---|---|
+| Revenue | item prices, excluding freight (BRL) | product category, seller state, customer state, month |
+| Units sold | number of product units sold | product category, seller state, customer state, month |
+| Freight | freight (shipping) charges (BRL) | product category, seller state, customer state, month |
+| Orders | number of orders | customer state, month |
+| Customers | number of distinct customers | customer state, month |
+| Average order value | average item value per order (BRL) | customer state, month |
+| Late delivery rate | share of delivered orders that arrived after the estimated date | customer state, month |
+| Average delivery days | average days from purchase to delivery | customer state, month |
+| Payment value | amount customers paid, including freight (BRL); not revenue | payment method, month |
+| Average review score | average customer review score (1–5 stars) | customer state, month, delivery status (late vs on time) |
+| Reviews | number of customer reviews | customer state, month, delivery status (late vs on time) |
+
+These are **11 metrics and 6 groupings, combined in only the 30 valid pairs listed above**, not all 66 possible pairs. For example, payments can't be grouped by product category, because a payment can't be attributed to individual products. Every metric can also be asked for as an overall total. Within these combinations, a question can:
+- restrict the data to a year (2016–2018),
+- ask for the top or bottom N,
+- ask for each group's share of the total,
+- ask for month-over-month growth.
+
+**Examples that are answered:**
+- *What are the top 5 product categories by sales revenue?*
+- *What share of payment value comes from each payment type?*
+- *Which customer states have the highest late delivery rate?*
+- *How did monthly sales revenue grow during 2018?*
+
+**Examples that are refused**, with the reason shown to the user:
+- *How many orders were cancelled?* The catalog doesn't separate orders by status, so counting all orders would answer a different question.
+- *Which sellers generate the most revenue?* Individual sellers aren't in the catalog; only seller states are.
+
+### Screenshots
+
+An answered question, with a summary and a results table generated from the data:
+
+![Answer to "What are the top 5 product categories by sales revenue?" with a summary sentence and a ranked table](docs/images/answer-top-categories.png)
+
+A safe refusal that explains why the question can't be answered reliably:
+
+![Refusal of "How many orders were cancelled?" explaining that the metrics do not separate orders by status](docs/images/refusal-cancelled-orders.png)
+
 ## Tech stack
 
 | Component | Choice |
@@ -149,6 +202,7 @@ agentic-retail-analyst/
 │   ├── agents/                  # supervisor.py (routing + report), data_analyst.py, analytics.py
 │   └── tools/                   # sql_tool.py, python_tool.py, query_builder.py (kept, not used)
 ├── sql/                         # read-only login script and a read-only schema inspection script
+├── docs/images/                 # README screenshots
 ├── evaluation/                  # benchmark.json, run_benchmark.py, ground truth, all result files
 ├── tests/                       # 164 tests (catalog, fit check, question parsing, tools, graph, summaries, UI, benchmark reference)
 ├── .env.example                 # configuration template (copy to .env)
@@ -538,3 +592,8 @@ The year check now reads date ranges with `question.read_ranges`, like the quest
 | 5. Streamlit UI | ✅ (frozen) |
 | 6. Accuracy and reliability: metric catalog, question constraints, refusals, generated summaries, 17-question benchmark | ✅ |
 | 7. Reliability: metric-fit check, fewer model calls, qualifier detection, closed-world check, date ranges | ✅ frozen. Final regression: 0 wrong answers on the 17-, 32- and 49-question sets |
+
+## License and author
+
+- **License:** MIT. See [LICENSE](LICENSE).
+- **Author:** Elie Chahoud ([github.com/eliechahoud7](https://github.com/eliechahoud7)).
