@@ -6,10 +6,15 @@ Three cooperating agents, built with **LangGraph**, plan the work, fetch verifie
 from **PostgreSQL**, run statistics with **pandas** and report an answer that is generated from the
 data. Everything runs locally on a laptop with a 2 GB GPU, using **Qwen 2.5 1.5B via Ollama**, at zero cost.
 
-> **Status: experimental portfolio project.** On a 17-question benchmark the current version answered
-> **13/13 answerable questions correctly** (data and text) and **refused 4/4 questions it should not
-> answer**, confirmed in a live run (see Evaluation). The system only answers questions covered by its metric catalog (11 metrics × 6 groupings)
-> and refuses everything else. It is not production-ready and does not do general-purpose SQL reasoning.
+> **Status: experimental portfolio project; the core implementation is frozen.**
+>
+> - **Final regression:** 0 wrong answers on all three evaluation sets (17, 32 and 49 questions). Of the answerable
+>   questions, 13 of 13, 13 of 18 and 1 of 4 were answered correctly; all other questions were refused.
+> - **Limited coverage:** the system only answers questions its metric catalog can express (11 metrics and 6 groupings,
+>   in 30 valid combinations) and refuses everything else. Only 4 of 49 questions written without knowledge of the
+>   catalog fall within it.
+> - **No independent validation:** all three question sets were used during development.
+> - **Not production-ready:** it does not do general-purpose SQL reasoning.
 
 ## Tech stack
 
@@ -94,9 +99,10 @@ So most questions use **one model call in total**: the Data Analyst's choice.
 
 1. **Database login:** `retail_agent_ro` has `SELECT` only, on 20 business tables, and no other rights.
    - Sessions are read-only, with a 30 s statement timeout and a 5-connection limit.
-   - See `sql/02_create_agent_role.sql`. The existing `powerbi_reader` account was not modified.
+   - See `sql/02_create_agent_role.sql`.
 2. **Metric catalog and question constraints** (`catalog.py`, `question.py`):
-   - 11 business metrics × 6 groupings, defined from the warehouse facts using the database's documented rules:
+   - 11 business metrics and 6 groupings, in 30 valid metric–grouping combinations (plus an overall total for each metric),
+     defined from the warehouse facts using the database's documented rules:
      - revenue excludes freight
      - payments can't be attributed to products or sellers
      - delivery metrics use the documented "eligible" delivered orders
@@ -117,7 +123,8 @@ So most questions use **one model call in total**: the Data Analyst's choice.
 
 ## Data
 
-`retail_intelligence` holds the public **Olist Brazilian e-commerce** dataset (about 99k orders, 2016–2018):
+`retail_intelligence` holds the public **Olist Brazilian e-commerce** dataset (about 99k orders, 2016–2018). It is built by
+the companion project [retail-intelligence](https://github.com/eliechahoud7/retail-intelligence) (see Setup, step 2):
 - **`warehouse`:** a star schema (4 fact and 4 dimension tables with foreign keys).
 - **`analytics`:** 7 reporting views.
 - **`dbt_marts`:** 5 summary tables.
@@ -141,7 +148,7 @@ agentic-retail-analyst/
 │   ├── ui_support.py            # reliability gate, service checks, diagnostics
 │   ├── agents/                  # supervisor.py (routing + report), data_analyst.py, analytics.py
 │   └── tools/                   # sql_tool.py, python_tool.py, query_builder.py (kept, not used)
-├── sql/                         # read-only inspection scripts and the agent role script
+├── sql/                         # read-only login script and a read-only schema inspection script
 ├── evaluation/                  # benchmark.json, run_benchmark.py, ground truth, all result files
 ├── tests/                       # 164 tests (catalog, fit check, question parsing, tools, graph, summaries, UI, benchmark reference)
 ├── .env.example                 # configuration template (copy to .env)
@@ -150,43 +157,65 @@ agentic-retail-analyst/
 
 ## Setup and running
 
-All commands are for **Windows PowerShell**, run from the project root.
+All commands are for **Windows PowerShell**. Follow the steps in order.
 
 ### 1. Prerequisites
 
 | Software | Tested version |
 |---|---|
-| Windows | 11 |
+| Windows | Windows 11 Pro (build 10.0.26200) |
 | Python | 3.12.10 |
 | PostgreSQL | 18 |
 | Ollama | 0.40.16, with `qwen2.5:1.5b` (about 1 GB) |
+| Git | 2.47 |
 
 **Tested hardware:** NVIDIA MX450 (2 GB) and 16 GB RAM. Other setups haven't been tested.
 
-### 2. Build the `retail_intelligence` database
+### 2. Build the `retail_intelligence` database (companion project)
 
-This project only **reads** an existing database. That database (raw Olist CSVs → validated warehouse → analytics views → dbt marts) is built by the companion project **[retail-intelligence](https://github.com/eliechahoud7/retail-intelligence)**.
+**Prerequisite:** this project only **reads** an existing PostgreSQL database. That database is built by the companion project **[retail-intelligence](https://github.com/eliechahoud7/retail-intelligence)**, which provides:
+- the Olist data pipeline,
+- the `warehouse` star schema,
+- the `analytics` views,
+- the `dbt_marts` tables.
 
-Follow its *Getting started* steps 1–5, **including dbt**. They cover downloading the [Olist dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) from Kaggle.
-- The login script below grants access to the `warehouse`, `analytics` and `dbt_marts` schemas, so all three must exist.
-- The tests and ground-truth queries also use the `analytics` views.
+Clone it and follow **its** *Getting started* steps 1–5, **including step 5 (dbt)**. Run those commands in the `retail-intelligence` folder, with that project's own virtual environments (`.venv` and `.venv-dbt`), which it creates itself. Its steps include downloading the [Olist dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) from Kaggle.
 
-Check the result as the PostgreSQL admin. `psql` is usually not on PATH, hence the full path:
+```powershell
+git clone https://github.com/eliechahoud7/retail-intelligence.git
+# then follow retail-intelligence\README.md, "Getting started", steps 1-5
+```
+
+All three schemas are required:
+- `02_create_agent_role.sql` (step 3) grants access to `warehouse`, `analytics` and `dbt_marts`.
+- The tests and ground-truth queries use the `analytics` views.
+
+**Check the database** with `psql` as the PostgreSQL admin. No Python environment is needed. `psql` is usually not on PATH, so use its full path, and adjust `18` if your PostgreSQL version differs:
 
 ```powershell
 $psql = "C:\Program Files\PostgreSQL\18\bin\psql.exe"
 & $psql -U postgres -d retail_intelligence -c "SELECT COUNT(*) FROM warehouse.fact_orders;"   # expect 99441
-& $psql -U postgres -d retail_intelligence -c "\dn"     # expect warehouse, analytics, dbt_marts
+& $psql -U postgres -d retail_intelligence -c "\dn"                                            # expect warehouse, analytics, dbt_marts
 ```
 
 ### 3. Create the read-only login `retail_agent_ro`
 
-The script creates a login with `SELECT` on 20 business tables only, read-only sessions, a 30 s timeout and a 5-connection limit. It contains **no password**.
+Get this repository and open PowerShell in its root folder; all later commands run there.
+
+The script creates a login with:
+- `SELECT` on 20 business tables only,
+- read-only sessions,
+- a 30 s timeout,
+- a 5-connection limit.
+
+It contains **no password**. You choose the password interactively at the `psql` prompt, so it never appears in a command or a file.
 
 ```powershell
+$psql = "C:\Program Files\PostgreSQL\18\bin\psql.exe"            # same as step 2 (needed in a new window)
 & $psql -U postgres -d retail_intelligence -f sql\02_create_agent_role.sql
-& $psql -U postgres -d retail_intelligence    # then, at the psql prompt:
-#   \password retail_agent_ro                  (typed twice, not shown on screen)
+& $psql -U postgres -d retail_intelligence
+# at the psql prompt:
+#   \password retail_agent_ro        (enter the new password twice; it is not shown)
 #   \q
 ```
 
@@ -194,9 +223,12 @@ The script creates a login with `SELECT` on 20 business tables only, read-only s
 
 ```powershell
 py -3.12 -m venv .venv
-.\.venv\Scripts\Activate.ps1      # if scripts are blocked: Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-pip install -r requirements.txt
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned            # only if running scripts is blocked
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
 ```
+
+The `python` commands in steps 7–9 assume this environment is active. In a new PowerShell window, run `.\.venv\Scripts\Activate.ps1` again.
 
 ### 5. Configure `.env`
 
@@ -206,15 +238,16 @@ notepad .env                      # set PGPASSWORD to the password chosen in ste
 ```
 
 - `.env` is git-ignored: **never commit it**. The other values (host, port, database, `PGUSER=retail_agent_ro`, Ollama URL and model) are already correct for a local setup.
-- **⚠ Variables already set in your shell take precedence over `.env`.** If `PGUSER` or `PGPASSWORD` is set (common when using `psql` as admin), the application would connect with those credentials instead of `retail_agent_ro`. Check with `Get-ChildItem Env:PG*` and clear them for the session:
+- **⚠ Variables already set in your shell take precedence over `.env`.** If `PGUSER` or `PGPASSWORD` is set (common when using `psql` as admin), the application would connect with those credentials instead of `retail_agent_ro`. Check, and clear them for the current session:
 
 ```powershell
+Get-ChildItem Env:PG*                                            # should list nothing
 Remove-Item Env:PGUSER, Env:PGPASSWORD -ErrorAction SilentlyContinue
 ```
 
 ### 6. Ollama and the model
 
-1. Install Ollama from [ollama.com/download](https://ollama.com/download).
+1. Install Ollama from [ollama.com/download](https://ollama.com/download). It runs in the background at `http://localhost:11434`.
 2. Download the model:
 
 ```powershell
@@ -223,32 +256,24 @@ ollama list                       # qwen2.5:1.5b must be listed
 ```
 
 - All three agents use `OLLAMA_MODEL`.
-- The optional `SUPERVISOR_MODEL`, `DATA_ANALYST_MODEL` and `ANALYTICS_MODEL` settings override it per agent. The evaluation results were all produced with `qwen2.5:1.5b`.
+- The optional `SUPERVISOR_MODEL`, `DATA_ANALYST_MODEL` and `ANALYTICS_MODEL` settings override it per agent. All evaluation results were produced with `qwen2.5:1.5b`.
 
-### 7. Check the setup
+### 7. Run
 
 ```powershell
-python -m retail_analyst.graph "What share of payment value comes from each payment type?"
+python -m retail_analyst.graph "What share of payment value comes from each payment type?"   # command-line check
+streamlit run app.py                                                                       # chat UI at http://localhost:8501
 ```
 
-- The command prints the agent trace and the answer. **Expected:** credit card 78.34%.
+**The command-line check** prints the agent trace (requests and generated SQL), then the answer with its evidence and caveats.
+- **Expected:** credit card 78.34% of payment value.
 - If settings are missing, the error lists their names.
 
-### 8. Run the app
+**The chat** shows **only the business answer** (a heading, a factual summary and a results table) or a short refusal with its reason.
+- If the database or the model can't be reached, it shows an "unavailable" notice instead.
+- Each question's diagnostics (outcome, timing, checks and the full agent trace) are written to the application log.
 
-```powershell
-streamlit run app.py              # opens http://localhost:8501
-```
-
-If the database or the model can't be reached, the app shows an "unavailable" notice instead of answering.
-
-The chat shows **only the business answer** (a heading, a factual summary and a results table) or a short refusal with its reason.
-
-**For developers:**
-- Each question's diagnostics are written to the application log: outcome, timing, every check, and the full agent trace with requests and generated SQL.
-- The CLI (step 7) prints the same trace, with evidence and caveats.
-
-### 9. Tests
+### 8. Tests
 
 ```powershell
 python -m unittest discover -s tests
@@ -256,103 +281,173 @@ python -m unittest discover -s tests
 
 164 tests, about 20 s. **The database is required**; Ollama is not, because the model replies are scripted in the tests.
 
-### 10. Benchmark
+### 9. Benchmark
 
 The benchmark needs both the database and Ollama.
 
 ```powershell
-python evaluation/run_benchmark.py my_run_17q                               # benchmark.json (17 questions)
-python evaluation/run_benchmark.py my_run_32q independent_questions.json    # 32 questions
-python evaluation/run_benchmark.py my_run_49q fresh_questions.json          # 49 questions
+python evaluation\run_benchmark.py my_run_17q                               # benchmark.json (17 questions)
+python evaluation\run_benchmark.py my_run_32q independent_questions.json    # 32 questions
+python evaluation\run_benchmark.py my_run_49q fresh_questions.json          # 49 questions
 ```
 
-- **Output:** results go to `evaluation/results/<label>.json` and `.txt`.
-- **Labels:** **use a new label**, because an existing label is overwritten. A label with a folder (`my_run/results`) needs that folder to exist first.
-- **Runtime:** each set took 12–25 s on the tested hardware.
+- **Output:** results go to `evaluation\results\<label>.json` and `.txt`.
+- **Labels:** **use a new label**, because an existing label is overwritten. A label containing a folder (`my_run\results`) needs that folder to exist first.
+- **Runtime:** each set takes about **12–25 s** on the tested hardware; the first question includes loading the model.
 
 ### Troubleshooting
 
 | Symptom | Cause |
 |---|---|
 | `Missing settings in .env: …` | `.env` is missing or incomplete (step 5) |
-| "Unavailable" notice in the app | PostgreSQL isn't running, the password is wrong, Ollama isn't running, or the model hasn't been downloaded |
+| "Unavailable" notice in the app | PostgreSQL isn't running, the password in `.env` is wrong, Ollama isn't running, or the model hasn't been downloaded |
 | `psql` not recognised | Use the full path (step 2) |
-| Login script fails with `schema "dbt_marts" does not exist` | The dbt step of the database build is missing (step 2) | **only the business answer** (a heading, a factual summary and a results table) or a short
-refusal with its reason. **For developers,** each question's diagnostics are written to the application log:
-outcome, timing, every check and the full agent trace with requests and generated SQL. The CLI prints the
-same trace, with evidence and caveats.
+| Login script fails with `schema "dbt_marts" does not exist` | The dbt step of the database build is missing (step 2) |
+| `Activate.ps1 cannot be loaded because running scripts is disabled` | Run the `Set-ExecutionPolicy` line (step 4) |
 
 ## Evaluation
 
-### Current version: 17-question benchmark (`evaluation/benchmark.json`)
+### Methodology
 
-**The questions:**
-- **13 questions to answer**, with ground truth from **hand-written SQL that doesn't use the catalog**, mostly through the documented views.
-- **4 questions to refuse:** a why-question, a forecast, a question about data the database doesn't hold (marketing channels), and a relative period ("last quarter"). A refusal counts as correct.
+**Question sets** (`evaluation/`):
 
-**How answers are scored:**
-- **Correct:** an answer was shown, and its data matches the ground truth (groups, values and, for rankings, order).
-- **Wrong:** an answer was shown, but its data doesn't match.
-- **Safe failure:** no answer was given where one was expected.
+| Set | Questions | Written by | Answerable / must refuse |
+|---|---|---|---|
+| `benchmark.json` | 17 | the catalog's developer | 13 / 4 |
+| `independent_questions.json` | 32 | the catalog's developer, phrased as a business manager would ask. Despite the file name, **not independent** | 18 / 14 |
+| `fresh_questions.json` | 49 | generated by `qwen2.5:3b` without access to the catalog (prompt and raw output in `fresh_questions_raw.json`); then used during development | 4 / 45 |
 
-| | Run 1: model-written summaries (`catalog_1.5b`) | Run 2: generated summaries (`catalog_generated_1.5b`) | **Run 3: + fit check and fewer calls, current (`catalog_p3p4_1.5b`)** |
+- **Ground truth:** hand-written SQL that doesn't use the catalog, mostly through the database's documented views, following each question's natural meaning.
+- **Must-refuse questions:** causes, forecasts, relative periods, data the database doesn't hold, and questions the catalog can't express correctly.
+- **Runner:** `evaluation/run_benchmark.py` runs every question through the real workflow (live model and database) and scores **what the user would see**.
+
+**Scoring outcomes:**
+
+| Outcome | Meaning |
+|---|---|
+| **Correct answer** | An answerable question was answered, and the data shown matches the ground truth (groups, values and, for rankings, order) |
+| **Wrong answer** | An answer was shown, but it doesn't match the ground truth, or the question should have been refused (`wrong` and `wrongly_answered` in the result files) |
+| **Correct refusal** | A must-refuse question was refused |
+| **Safe failure** | An answerable question was refused: no answer, but nothing false shown |
+
+**Derived figures:**
+- **Accuracy on answerable questions** = correct answers / answerable questions.
+- **Refusal precision** = correct refusals / all refusals.
+
+Answers were also checked by hand against the ground truth, not only by the automatic scoring.
+
+> **⚠ None of these sets is independent validation.**
+> - The 17- and 32-question sets were written by the catalog's developer.
+> - The 49-question set was generated by Qwen 2.5 3B without access to the catalog, but it was then used during development.
+> - Failures found in all three sets led to fixes, and some catalog terms were taken from their wording.
+>
+> The results show that the final implementation is **stable and safe on these known questions**, not how it generalises
+> to new ones.
+
+### Final results (frozen implementation)
+
+| | 17 questions | 32 questions | 49 questions |
+|---|---|---|---|
+| Run (`evaluation/results/`) | `freeze_17q/` | `freeze_32q/` | `yearfix_49q/` |
+| Correct answers | 13 | 13 | 1 |
+| **Wrong answers** | **0** | **0** | **0** |
+| Correct refusals | 4 | 14 | 45 |
+| Safe failures | 0 | 5 | 3 |
+| Accuracy on answerable questions | 13/13 = 100% | 13/18 = 72.2% | 1/4 = 25% |
+| Refusal precision | 4/4 = 100% | 14/19 = 73.7% | 45/48 = 93.8% |
+| Total time | 12.5 s | 21.3 s | 16.2 s |
+
+All runs used `qwen2.5:1.5b` for every agent, on the tested hardware (see Setup).
+
+**The safe failures, explained:**
+- **32 questions:**
+  - **4 deliberate traps** (new customers, "most popular", "worst reviews", reviews received): a plausible answer would be wrong, so refusing them is the intended behaviour.
+  - **"Do late deliveries *hurt* customer ratings?"** is refused by the closed-world check, which doesn't know "hurt".
+- **49 questions:**
+  - **"Revenue from each payment method":** the model insisted on an invalid combination.
+  - **"…average number of days…order placement"** and **"…Is there an improvement…":** refused by the closed-world check because of words it doesn't know.
+
+**Coverage:** only 4 of the 49 catalog-blind questions fall within the catalog. Most realistic questions are therefore refused, by design.
+
+### Development history
+
+The runs below document how the final version was reached. **Each describes an earlier version**; the final results above supersede them.
+All result files are kept in `evaluation/results/`, indexed in its `README.md`.
+
+#### 1. Five-question set: from free-form SQL to the metric catalog (`evaluation/ground_truth.sql`)
+
+Outcomes for these runs were scored by hand at the time; the result files store timings, traces and answers, but no outcome field.
+
+| Version | Correct | Wrong | Safe failure | Time per question |
+|---|---|---|---|---|
+| Free-form SQL (first version) | 0 | 0 | 4 | 31–71 s |
+| Free-form SQL + retry/prompt fixes | 0 | 0 | 5 | 54–124 s |
+| Structured JSON queries | 0 | **2** (Q1, Q4: wrong grouping) | 3 | 31–46 s |
+| Structured + automatic correction + repeated-labels check | 2 (Q1, Q4) | 0 | 3 | 26–30 s |
+| Same, but **3B** Data Analyst | 0 | 0 | 5 | 83–137 s |
+| Metric catalog + generated summaries + fit check and fewer calls (questions 1–5 of the 17-question run 3) | **5** | **0** | **0** | 0.7–3.2 s |
+
+In the first version, Q1 is counted as neither correct nor wrong: its numbers were right, but it used "$" and wrong ranking words.
+
+**Model choice:** `qwen2.5:1.5b` is used for all three agents. In the structured-query comparison (one five-question
+run each), the 3B Data Analyst compared with 1.5B as follows:
+- **Speed:** about 4× slower, 550 s against 138 s in total.
+- **Hardware use:** it ran 62% on the CPU and only 38% on the 2 GB GPU, while the 1.5B model ran 76% on the GPU.
+- **Failures:** its requests failed validation 15 times against 4, and it produced no successful query, against 2.
+
+**What made the difference:** the earlier versions asked the 1.5B model to choose among 20 tables and
+301 columns, and it chose wrongly most of the time while ignoring error feedback. The catalog reduced
+that to a closed choice of metric and grouping, and moved the business rules, constraints, calculations
+and answer text into tested code.
+
+#### 2. 17-question benchmark: catalog versions, runs 1–3 (`catalog_1.5b`, `catalog_generated_1.5b`, `catalog_p3p4_1.5b`)
+
+| | Run 1: model-written summaries | Run 2: generated summaries | Run 3: + fit check and fewer calls |
 |---|---|---|---|
 | Correct metric and grouping chosen by the Data Analyst | 13/13 | 13/13 (identical requests to run 1) | 13/13 |
 | Answer **data** correct | 13/13 | 13/13 | 13/13 |
-| Answer **text** free of false statements | 7/13 | 13/13 | **13/13** (identical text to run 2) |
+| Answer **text** free of false statements | 7/13 | 13/13 | 13/13 (identical text to run 2) |
 | Wrong answers | 0 | 0 | 0 |
 | Must-refuse questions refused | 4/4 | 4/4 | 4/4 |
-| Time per answered question | 24–63 s | 3–16 s (no report model call) | **0.6–3.2 s** (usually one model call) |
+| Time per answered question | 24–63 s | 3–16 s (no report model call) | 0.6–3.2 s (usually one model call) |
 | Refusals | instant, except the marketing question (19 s) | instant, except the marketing question (16 s) | instant, except the marketing question (4.5 s) |
-| Total for all 17 questions | about 9 min | 122 s | **17.6 s** |
+| Total for all 17 questions | 485 s | 122 s | 17.6 s |
 | Memory | 1.1 GB, 76% on GPU; 844 of 2,048 MiB in use | same | same |
 
-**How the scores were obtained:**
 - **Run 1:** the model-written summaries contained false statements in Q2, Q3, Q7, Q8, Q12 and Q13, for example "highest growth in February" when it was March, and "lowest in RO" when it was SP. That led to the generated summaries.
-- **Offline rescore, then run 2:** an offline rescore of run 1's requests with the generated summaries (`catalog_1.5b_generated_summaries.json`) was confirmed by the live run 2. Every answer sentence was checked by hand against the ground truth.
-- **The reference test:** `tests/test_benchmark_reference.py` shows that, given the correct metric choice, the code reproduces all 13 ground-truth answers.
+- **Run 2:** an offline rescore of run 1's requests with the generated summaries (`catalog_1.5b_generated_summaries.json`) was confirmed by this live run. Every answer sentence was checked by hand against the ground truth.
+- **Reference test:** `tests/test_benchmark_reference.py` shows that, given the correct metric choice, the code reproduces all 13 ground-truth answers.
+- **In these runs, the marketing question was refused for a lucky reason.** The model didn't recognise it as out of scope; it chose an invalid combination (`customers` by `payment_type`), which the catalog rejected. In the final version it is refused by rules before any agent runs.
 
-**Honest caveats:**
-- **One run of 17 questions.** The questions were written by the developer of the catalog, so they fit its scope. Real users will ask questions outside it, which are refused.
-- **The marketing question was refused for a lucky reason.** The model didn't recognise it as out of scope; it chose an invalid combination (`customers` by `payment_type`), which the catalog rejected.
-
-### Independent question set (`evaluation/independent_questions.json`, run `independent_1.5b`)
-
-32 questions written as a business manager would ask, then classified. They're **not fully independent**: they were written by the catalog's designer. Ground truth uses each question's natural meaning.
+#### 3. First run of the 32-question set (`independent_1.5b`)
 
 | Question type | Count | Result |
 |---|---|---|
 | Within the catalog, normal wording | 9 | **9 correct** |
-| Within the catalog, unusual wording ("takings", "earns", "wait the longest", …) | 5 | 5 refused (safe, but missed). In 4 of them the model chose correctly, and the fit check rejected the choice because the words aren't in its term lists. |
+| Within the catalog, unusual wording ("takings", "earns", "wait the longest", …) | 5 | 5 refused (safe, but missed). In 4 of them the model chose correctly, and the fit check rejected the choice because the words weren't in its term lists. |
 | Traps where a plausible answer is wrong | 4 | **4 wrong answers** (details below) |
 | Data exists but the catalog can't answer | 9 | 8 refused, **1 wrong answer** |
 | Impossible (profit, marketing, stock, forecast, causes) | 5 | 5 refused |
 
-**The 5 wrong answers all ignore a qualifier in the question that the catalog can't represent:**
+**The 5 wrong answers all ignored a qualifier in the question that the catalog can't represent:**
 - **"How many orders were *cancelled*?"** was answered with all orders (99,441).
 - **"*New* customers each month"** was answered with active customers.
 - **"Month with the *worst* reviews"** was answered with the number of reviews, highest first.
 - **"Reviews *received* in 2018"** was counted by purchase date (53,854) instead of review date (56,164).
-- **"Most *popular* payment method"** was ranked by payment value instead of the number of payments. The leader (credit card) is still right.
+- **"Most *popular* payment method"** was ranked by payment value instead of the number of payments. The leader (credit card) was still right.
 
 The fit check is what refused the questions about one state or one payment type (São Paulo, Rio de Janeiro, vouchers) and profit margins. Without it, they would have been answered with unrelated totals.
 
-**After adding qualifier and filter detection** (`question.py`), all 5 wrong answers become refusals: **9 correct, 0 wrong,
-14 correct refusals, 9 safe failures** (5 unusual wording + 4 traps).
-This is an offline rescore: the new rule is deterministic and runs before any agent, and nothing reaching the agents changed.
+**This led to qualifier and filter detection** (`question.py`). In an offline rescore, all 5 wrong answers became refusals: **9 correct, 0 wrong, 14 correct refusals, 9 safe failures** (5 unusual wording + 4 traps).
 
-### Final live regression (`evaluation/results/final_regression_17q/`, `final_regression_32q/`, `final_regression_checks/`)
+#### 4. Live regression after qualifier detection (`final_regression_17q/`, `final_regression_32q/`, `final_regression_checks/`)
 
-Run with the unchanged configuration, after qualifier detection and before the synonym groups below:
-
-| | 17 questions | 32 questions (independent) |
+| | 17 questions | 32 questions |
 |---|---|---|
 | Correct / **wrong** / correct refusals / safe failures | 13 / **0** / 4 / 0 | 9 / **0** / 14 / 9 |
 | Accuracy on answerable questions | 100% | 50%, but 100% of the answers given |
 | Refusal precision | 100% | 60.9% |
 | Total / average time | 21.2 s / 1.25 s (0.59 s after model warm-up) | 45.2 s / 1.41 s |
-
-Every answer text was identical to the previous runs and was checked against the question and the ground truth.
 
 **Special checks:**
 - **Correct:** "Which states receive the most orders?" was answered; "reviews received in 2018" and "new customers acquired in 2017" were refused.
@@ -360,95 +455,53 @@ Every answer text was identical to the previous runs and was checked against the
   - "Which categories receive the most orders?": orders per category isn't in the catalog.
   - "Which are the best-selling categories?": the fit check didn't know "best-selling".
 
-**Afterwards: synonym groups in the fit check.** General wording for selling and buying, earning, waiting and lateness was added to the term lists. Replaying the requests the real model recorded in the final run through the new fit check (offline, not a live run):
-- The answers to "buy the most products", "takings", "earns" and "wait the longest" (independent Q4, Q5, Q7, Q14) and to "best-selling categories" become correct.
-- No refusal turns into a wrong answer.
+#### 5. Synonym groups in the fit check (`synonyms_17q/`, `synonyms_32q/`)
 
-**Caveat:** these words came from the evaluation sets themselves, so **those 5 questions are no longer independent evidence**. Measuring the real gain needs a fresh set of questions, ideally written by someone else.
+General wording for selling and buying, earning, waiting and lateness was added to the term lists.
 
-**Live rerun after the synonym groups** (`evaluation/results/synonyms_17q/`, `synonyms_32q/`):
-
-| | 17 questions | 32 questions (independent) |
+| | 17 questions | 32 questions |
 |---|---|---|
-| Correct / **wrong** / correct refusals / safe failures | 13 / **0** / 4 / 0 | **14** / **0** / 14 / 4 |
-| Accuracy on answerable questions | 100% | 77.8% (14/18; the 4 refused are the traps) |
-| Refusal precision | 100% | 77.8% (14/18) |
+| Correct / **wrong** / correct refusals / safe failures | 13 / **0** / 4 / 0 | 14 / **0** / 14 / 4 |
 | Total / average time | 20.3 s / 1.19 s | 34.0 s / 1.06 s |
 
-The 5 newly correct answers are Q4, Q5, Q7, Q14 and Q17. For Q17, the fit check rejected the model's first request (grouped by state)
-and its retry, with no grouping, was correct. All other answers are identical to the final regression run.
-These 5 gains are partly contaminated: their words were added to the term lists from this set.
+- **The 5 newly correct answers** were Q4, Q5, Q7, Q14 and Q17 ("buy the most products", "takings", "earns", "wait the longest", "after the promised date").
+- **These gains are contaminated:** their words were taken from this set, so they aren't independent evidence.
 
-### Fresh question set (`evaluation/fresh_questions.json`, run `evaluation/results/fresh_49q/`)
+#### 6. First run of the fresh 49-question set (`fresh_49q/`)
 
-**The set:** 49 questions written by `qwen2.5:3b`, which **never saw the metric catalog**. It was given only a description of the business; prompt and raw output are in `evaluation/fresh_questions_raw.json`. All questions are kept in the order generated, except one duplicate. They were classified afterwards:
-- **4 the catalog can answer**
-- **37 coverage gaps:** the data exists, but the catalog can't express the question
-- **8 impossible:** no such data
+**Classification of the set:**
+- **4 questions** the catalog can answer.
+- **37 coverage gaps:** the data exists, but the catalog can't express the question.
+- **8 impossible questions:** the data doesn't exist.
 
-| | Result |
-|---|---|
-| Correct answers | **0 of 4** answerable |
-| **Wrong answers** | **2** |
-| Correct refusals | 43 of 45 must-refuse |
-| Safe failures | 4: all answerable questions were refused |
-| Refusal precision | 43/47 = 91.5% |
-| Time | 35.7 s total, 0.73 s average; 38 questions refused before any agent |
+**Result:** 0 correct, **2 wrong**, 43 correct refusals and 4 safe failures, in 35.7 s.
 
 **The 2 wrong answers:**
-- **"Average delivery duration from order placement to the *estimated* delivery date"** was answered with the actual delivery time (12.56 days); the correct figure is 23.77 days. The term "delivery duration" was **added in the synonym change**; before it, this question would have been refused.
+- **"Average delivery duration from order placement to the *estimated* delivery date"** was answered with the actual delivery time (12.56 days); the correct figure is 23.77 days. The term "delivery duration" had been **added in the synonym change**.
 - **"Total revenue from orders *with more than one payment method*"** was answered with total revenue (R$ 13,591,644); the correct figure is R$ 284,488 from 2,246 orders. The condition was ignored.
 
 **The 4 unnecessary refusals:**
-- **3 questions** say "during the period September 2016 to October 2018", which is the whole dataset. The single-month rule mistakes it for one month.
-- **1 question** ("average number of days for an order to be delivered") used wording that isn't in the term lists, although the model's choice was correct.
+- **3 questions** said "during the period September 2016 to October 2018" (the whole dataset), and the single-month rule mistook it for one month.
+- **1 question** used wording that wasn't in the term lists.
 
-**What this shows:**
-- Realistic questions are mostly outside the catalog's scope (8% coverage).
-- **Conditions and qualifiers in the question that the term lists don't recognise can still be ignored silently.** This is the main remaining risk, and widening the term lists made it worse in one case.
+**Lesson:** conditions the term lists don't recognise could still be ignored silently, and widening the lists had made this worse in one case.
 
-### Live rerun after the closed-world check and date ranges (`evaluation/results/closedworld_17q/`, `_32q/`, `_49q/`)
+#### 7. Closed-world check and date ranges (`closedworld_17q/`, `closedworld_32q/`, `closedworld_49q/`)
 
-| | 17 questions | 32 (independent) | 49 (fresh, now seen) |
+| | 17 questions | 32 questions | 49 questions |
 |---|---|---|---|
 | Correct / **wrong** / correct refusals / safe failures | 13 / **0** / 4 / 0 | 13 / **0** / 14 / 5 | 0 / **0** / 45 / 4 |
 | Total / average time | 20.5 s / 1.21 s | 20.7 s / 0.65 s | 16.5 s / 0.34 s |
 
-**Changes compared with the previous runs:**
-- **Fresh set:** the 2 wrong answers are now refused correctly.
-- **Independent set:** "Do late deliveries hurt customer ratings?" is now refused (unnecessary; the closed-world check doesn't know "hurt").
-- **17-question set:** unchanged.
+- **49 questions:** the 2 wrong answers became correct refusals.
+- **32 questions:** "Do late deliveries hurt customer ratings?" became an unnecessary refusal (the closed-world check doesn't know "hurt").
+- **Bug found:** fresh Q3 retrieved the correct data, but the report stage's year check still read 2016 and 2018 from the raw question instead of applying the range rule. It flagged the data as "a different period" and refused. The result was safe, but it was a bug.
 
-**Bug found in this run (now fixed):**
-- **Fixed afterwards** (approved): the year check now reads ranges with `question.read_ranges`, like the question rules. Regression tests cover fresh Q3's wording end to end.
-- Fresh Q3 ("…orders during the period September 2016 to October 2018") retrieved the correct data, but **the report stage's year check (`period_not_covered`) still reads 2016 and 2018 from the raw question**. It ignores the range rule, so it flagged the data as "a different period" and refused. The result was safe, but it's a bug.
-- Fresh Q2 was refused because the model insisted on revenue by payment method, which isn't a valid combination: "revenue" in the question means the money paid.
+#### 8. Year-check fix (`yearfix_49q/`)
 
-### Fresh set after the year-check fix (`evaluation/results/yearfix_49q/`)
-
-**Result:** 1 correct, **0 wrong**, 45 correct refusals and 3 safe failures, in 16.2 s.
-- **The only change:** Q3 (orders by state over the whole dataset range) is now answered correctly. SP has the most orders (41,746), followed by RJ (12,852) and MG (11,635).
-- **Caveat:** this set had already been seen, so the result confirms the fix but isn't independent evidence.
-
-### Development history (earlier versions, 5-question set, `evaluation/ground_truth.sql`)
-
-| Version | Correct | Wrong | Safe failure | Time per question |
-|---|---|---|---|---|
-| Free-form SQL (first version) | 0 (Q1 numbers right, but "$" and wrong ranking words) | 0 | 4 | 31–71 s |
-| Free-form SQL + retry/prompt fixes | 0 | 0 | 5 | 54–124 s |
-| Structured JSON queries | 0 | **2** (Q1, Q4: wrong grouping) | 3 | 31–46 s |
-| Structured + automatic correction + repeated-labels check | 2 (Q1, Q4) | 0 | 3 | 26–30 s |
-| Same, but **3B** Data Analyst | 0 | 0 | 5 | 83–137 s |
-| **Metric catalog + generated summaries + fit check and fewer calls (current)** | **5** | **0** | **0** | 0.7–3.2 s |
-
-**Model choice:** `qwen2.5:1.5b` is used for all three agents. In the structured-query comparison, the 3B Data
-Analyst was about 4× slower (550 s vs 138 s for 5 questions), ran mostly on the CPU (only 38% on the
-2 GB GPU), and broke the JSON format more often. That was a single five-question run.
-
-**What made the difference:** the earlier versions asked the 1.5B model to choose among 20 tables and
-301 columns, and it chose wrongly most of the time while ignoring error feedback. The catalog reduced
-that to a closed choice of metric and grouping, and moved the business rules, constraints, calculations
-and answer text into tested code.
+The year check now reads date ranges with `question.read_ranges`, like the question rules, and regression tests cover fresh Q3's wording end to end.
+- **The only change:** Q3 is now answered correctly. SP has the most orders (41,746), followed by RJ (12,852) and MG (11,635).
+- This run is the 49-question figure in the final results. The 17- and 32-question sets contain no date ranges, and their final runs (`freeze_17q/`, `freeze_32q/`) gave results identical to step 7.
 
 ## Known limitations
 
@@ -456,22 +509,22 @@ and answer text into tested code.
   ratings?" (answered correctly before) and "average number of days for an order to be delivered" are now refused.
   Every addition to the generic word list is a decision with consequences: a word that can introduce a condition must not be added.
 - **Qualifier detection uses word lists.** It refuses meaning-changing words (cancelled, new, worst, received, …) and
-  value filters (one state, month, payment method or category). That turned the independent set's 5 wrong answers into refusals.
+  value filters (one state, month, payment method or category). That turned the 32-question set's 5 wrong answers into refusals.
   Words are checked in context: "new" only counts in lifecycle phrases such as "new customers", and "receive" only
   for reviews or ratings received, or deliveries customers received ("Which states receive the most orders?" is answered).
   A qualifier phrased in words not on the lists could still be ignored, and a harmless question can still be over-refused.
 
-- **Fixed scope:** only the catalog's 11 metrics and 6 groupings, one grouping per question. Questions like
+- **Fixed scope:** only the catalog's 11 metrics and 6 groupings (30 valid combinations), one grouping per question. Questions like
   "growth per category", or ones about products, sellers or customers individually, are refused.
 - **The fit check depends on its term lists.** A question that names a metric in words not on the list
   is refused rather than answered. The lists were widened with synonym groups, partly from the evaluation sets
-  (see Final live regression), and "products" alone and "spend" are deliberately left out. Ambiguous
+  (see Development history, step 5), and "products" alone and "spend" are deliberately left out. Ambiguous
   questions such as "How many orders were late?" can still pass with a valid but imprecise metric (total orders).
 - **The Data Analyst's choice is still made by the model.** In the benchmark it chose correctly 13/13, but it
   usually ignores error feedback, so a wrong first choice tends to end in a refusal rather than a correction.
 - **Fixed wording:** the generated summaries are accurate but formulaic, and they don't add business
   interpretation beyond what the data shows.
-- **Speed:** about 1–3 s per answered question on an MX450 GPU (17.6 s for the whole benchmark); why-questions, forecasts and relative-period questions are refused instantly.
+- **Speed:** about 1–3 s per answered question on an MX450 GPU; each benchmark set takes about 12–25 s. Questions refused by the rules are refused instantly.
 - **Local demo only:** no authentication; single user.
 
 ## Roadmap
@@ -484,4 +537,4 @@ and answer text into tested code.
 | 4. Three-agent LangGraph workflow | ✅ |
 | 5. Streamlit UI | ✅ (frozen) |
 | 6. Accuracy and reliability: metric catalog, question constraints, refusals, generated summaries, 17-question benchmark | ✅ |
-| 7. Check that the chosen metric fits the question; fewer unnecessary model calls | ✅ (benchmark run 3: 13/13 + 4/4, 17.6 s total) |
+| 7. Reliability: metric-fit check, fewer model calls, qualifier detection, closed-world check, date ranges | ✅ frozen. Final regression: 0 wrong answers on the 17-, 32- and 49-question sets |
